@@ -2,7 +2,19 @@ from import_data import Neo4jConnection
 
 
 db = Neo4jConnection()
+db.query("""
+CREATE INDEX song_track_id IF NOT EXISTS
+FOR (s:Song)
+ON (s.track_id)
+""")
 
+db.query("""
+CREATE INDEX user_id IF NOT EXISTS
+FOR (u:User)
+ON (u.user_id)
+""")
+
+print("Indexes ready!")
 
 # ==========================
 # 1. CREATE SONG NODE
@@ -32,7 +44,7 @@ CALL {
         s.energy = row.energy,
         s.valence = row.valence
 
-} IN TRANSACTIONS OF 1000 ROWS
+} IN TRANSACTIONS OF 200 ROWS
 """
 
 

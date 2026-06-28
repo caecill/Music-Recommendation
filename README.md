@@ -299,3 +299,62 @@ Running
 ```
 
 sebelum menjalankan script Python.
+
+
+
+## Menjalankan Backend
+
+1. Jalankan Neo4j Desktop dan pastikan database aktif.
+2. Install dependency.
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Jika database masih kosong, lakukan import sekali:
+
+```bash
+python neo4j/load_database.py
+```
+
+4. Jalankan FastAPI.
+
+```bash
+python -m uvicorn backend.main:app --reload
+```
+
+5. Buka Swagger:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## Endpoint
+
+| Method | Endpoint |
+|--------|----------|
+| GET | `/songs` |
+| GET | `/users` |
+| GET | `/history/{user_id}` |
+| POST | `/register` |
+| POST | `/login` |
+| POST | `/play` |
+| GET | `/recommend/{user_id}` |
+
+---
+
+## Untuk Frontend
+
+Frontend cukup memanggil endpoint yang tersedia.
+
+Contoh:
+- Login → `POST /login`
+- Register → `POST /register`
+- Daftar Lagu → `GET /songs`
+- Play Lagu → `POST /play`
+- History → `GET /history/{user_id}`
+- Recommendation → `GET /recommend/{user_id}`
+
+Tidak perlu mengakses Neo4j secara langsung karena seluruh proses sudah ditangani oleh FastAPI.
