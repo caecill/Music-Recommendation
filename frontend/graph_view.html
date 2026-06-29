@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Music Recommendation | Graph View</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .graph-canvas {
+        background-image: radial-gradient(
+          circle at 2px 2px,
+          #282828 1px,
+          transparent 0
+        );
+        background-size: 40px 40px;
+      }
+      .node-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(1.05);
+        }
+      }
+      .glass-panel {
+        backdrop-filter: blur(20px);
+        background: rgba(18, 18, 18, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      @media (max-width: 767px) {
+        header {
+          width: 100% !important;
+          padding-left: 56px !important;
+          padding-right: 12px !important;
+        }
+        header .search-container {
+          display: none !important;
+        }
+        main {
+          margin-left: 0 !important;
+        }
+        footer .player-extra {
+          display: none !important;
+        }
+        footer .player-controls-main {
+          display: none !important;
+        }
+        footer .player-progress {
+          display: none !important;
+        }
+        footer {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+          height: 64px !important;
+        }
+        footer .player-now-playing {
+          min-width: 0 !important;
+          flex: 1 !important;
+        }
+        footer .player-now-playing img {
+          width: 40px !important;
+          height: 40px !important;
+        }
+        footer .player-mobile-controls {
+          display: flex !important;
+        }
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474746",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "primary-fixed": "#72fe8f",
+              tertiary: "#c8c6c6",
+              "inverse-surface": "#e5e2e1",
+              primary: "#53e076",
+              "surface-bright": "#393939",
+              "on-tertiary-fixed-variant": "#474747",
+              "inverse-on-surface": "#313030",
+              "on-primary-fixed": "#002108",
+              "on-tertiary-fixed": "#1b1c1c",
+              "primary-fixed-dim": "#53e076",
+              "primary-container": "#1db954",
+              "on-tertiary": "#303030",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed": "#e4e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-container": "#383838",
+              "on-secondary-fixed-variant": "#474746",
+              "outline-variant": "#3d4a3d",
+              background: "#131313",
+              "surface-container-highest": "#353534",
+              secondary: "#c8c6c5",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#005320",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-surface-variant": "#bccbb9",
+              "on-error": "#690005",
+              "surface-container-high": "#2a2a2a",
+              "surface-variant": "#353534",
+              "on-primary": "#003914",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#c8c6c5",
+              "surface-container-low": "#1c1b1b",
+              outline: "#869585",
+              surface: "#131313",
+              "inverse-primary": "#006e2d",
+              "surface-container": "#201f1f",
+              "on-background": "#e5e2e1",
+              "on-secondary": "#303030",
+              error: "#ffb4ab",
+              "surface-tint": "#53e076",
+              "on-primary-container": "#004118",
+              "on-secondary-container": "#b7b5b4",
+              "on-surface": "#e5e2e1",
+              "tertiary-container": "#a2a1a1",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              base: "8px",
+              "container-margin": "24px",
+              md: "16px",
+              sm: "8px",
+              xs: "4px",
+              lg: "24px",
+              xl: "32px",
+              gutter: "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-xl": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-md": ["20px", { lineHeight: "1.4", fontWeight: "700" }],
+              "headline-xl": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.04em",
+                  fontWeight: "800",
+                },
+              ],
+              "headline-lg-mobile": [
+                "24px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-sm": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-background text-on-surface font-body-lg overflow-hidden"
+    data-page="Graph View"
+  >
+    <!-- Top Navigation Bar -->
+    <header
+      class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-16 flex justify-between items-center px-lg glass-panel z-40"
+    >
+      <div class="flex items-center gap-md w-1/3">
+        <div class="relative w-full max-w-sm">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+            data-icon="search"
+            >search</span
+          >
+          <input
+            class="w-full bg-surface-container-high border-none rounded-xl pl-10 text-body-sm focus:ring-1 focus:ring-primary"
+            placeholder="Search the graph..."
+            type="text"
+          />
+        </div>
+      </div>
+      <div class="flex items-center gap-lg">
+        <button
+          class="p-2 hover:bg-surface-container-highest/50 rounded-full transition-all"
+        >
+          <span
+            class="material-symbols-outlined text-on-surface"
+            data-icon="notifications"
+            >notifications</span
+          >
+        </button>
+        <button
+          class="p-2 hover:bg-surface-container-highest/50 rounded-full transition-all"
+        >
+          <span
+            class="material-symbols-outlined text-on-surface"
+            data-icon="settings"
+            >settings</span
+          >
+        </button>
+        <div
+          class="h-10 w-10 rounded-full overflow-hidden border border-outline-variant"
+        >
+          <img
+            alt="User Profile"
+            class="h-full w-full object-cover"
+            data-alt="A professional headshot of a young creative professional with a modern aesthetic. The lighting is soft and artistic, highlighting facial features against a dark, moody charcoal background that complements a sleek dark-mode user interface. The subject has a confident, intelligent expression, embodying the persona of a premium music curator."
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCluzfRk8Qxdx3Jc-X4-bFexymnotz6zbPDbnh1HkvTPbMlgiN_IWsjp6pXoukKO1v7iGh5Fu7nnLmlvSMtKzZt9wJPDxdgtVxv0rPuwv7NHUb-D8stnql91dWdgwm7dPuYHai4eXisHkVvoKNe0qXGIlaLX6XiDBZ3Kz4t8hy6pTWPq9XgaUDcJSx9vQ2KULp5UDP-ITL5qV4nACIUPY6S-zhLstNm7h1UBfHhciGMSbWxgNkQ3OlxMSFC0tXeJRuxtx4sMF-dmuSF"
+          />
+        </div>
+      </div>
+    </header>
+    <!-- Main Content: Graph Canvas -->
+    <main
+      class="md:ml-[240px] mt-16 h-[calc(100vh-64px-100px)] relative overflow-hidden graph-canvas"
+      id="graph-container"
+    >
+      <!-- SVG Interactive Graph Layer -->
+      <svg
+        class="w-full h-full cursor-move"
+        id="graph-svg"
+        viewbox="0 0 1000 800"
+      >
+        <!-- Edges (LISTENED) -->
+        <g class="stroke-[#282828] stroke-1" id="edges">
+          <line x1="220" x2="750" y1="320" y2="235"></line>
+          <line x1="220" x2="750" y1="320" y2="405"></line>
+          <line x1="220" x2="750" y1="490" y2="235"></line>
+          <line x1="220" x2="750" y1="490" y2="575"></line>
+          <line x1="220" x2="750" y1="660" y2="575"></line>
+          <line x1="220" x2="750" y1="150" y2="405"></line>
+          <line x1="220" x2="750" y1="150" y2="235"></line>
+        </g>
+        <!-- Nodes (Users & Songs) -->
+        <g id="nodes">
+          <!-- User Nodes (Blue Accent) -->
+          <g
+            class="user-node cursor-pointer group"
+            data-label="User ID: 8921"
+            data-playcount="1,240 plays"
+          >
+            <circle
+              class="fill-[#3b82f6] filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:r-[16] transition-all"
+              cx="220"
+              cy="320"
+              r="14"
+            ></circle>
+            <circle
+              class="fill-none stroke-[#3b82f6]/20 stroke-1 node-pulse"
+              cx="220"
+              cy="320"
+              r="18"
+            ></circle>
+          </g>
+          <g
+            class="user-node cursor-pointer group"
+            data-label="User ID: 4402"
+            data-playcount="892 plays"
+          >
+            <circle
+              class="fill-[#3b82f6] filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:r-[16] transition-all"
+              cx="220"
+              cy="490"
+              r="14"
+            ></circle>
+          </g>
+          <g
+            class="user-node cursor-pointer group"
+            data-label="User ID: 1205"
+            data-playcount="2,105 plays"
+          >
+            <circle
+              class="fill-[#3b82f6] filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:r-[16] transition-all"
+              cx="220"
+              cy="660"
+              r="14"
+            ></circle>
+          </g>
+          <g
+            class="user-node cursor-pointer group"
+            data-label="User ID: 7731"
+            data-playcount="456 plays"
+          >
+            <circle
+              class="fill-[#3b82f6] filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:r-[16] transition-all"
+              cx="220"
+              cy="150"
+              r="14"
+            ></circle>
+          </g>
+          <!-- Song Nodes (Green Accent - Brand Primary) -->
+          <g
+            class="song-node cursor-pointer group"
+            data-label="Midnight City"
+            data-playcount="42,500 plays"
+          >
+            <circle
+              class="fill-primary filter drop-shadow-[0_0_12px_rgba(29,185,84,0.6)] group-hover:r-[24] transition-all"
+              cx="750"
+              cy="235"
+              r="22"
+            ></circle>
+            <circle
+              class="fill-none stroke-primary/30 stroke-1 node-pulse"
+              cx="750"
+              cy="235"
+              r="28"
+            ></circle>
+          </g>
+          <g
+            class="song-node cursor-pointer group"
+            data-label="After Hours"
+            data-playcount="31,200 plays"
+          >
+            <circle
+              class="fill-primary filter drop-shadow-[0_0_10px_rgba(29,185,84,0.5)] group-hover:r-[20] transition-all"
+              cx="750"
+              cy="405"
+              r="18"
+            ></circle>
+          </g>
+          <g
+            class="song-node cursor-pointer group"
+            data-label="Lost in Yesterday"
+            data-playcount="18,900 plays"
+          >
+            <circle
+              class="fill-primary filter drop-shadow-[0_0_10px_rgba(29,185,84,0.5)] group-hover:r-[22] transition-all"
+              cx="750"
+              cy="575"
+              r="20"
+            ></circle>
+          </g>
+        </g>
+      </svg>
+      <!-- Hover Tooltip -->
+      <div
+        class="absolute hidden bg-surface-container-highest border border-outline-variant p-md rounded-xl shadow-xl pointer-events-none z-[60] min-w-[180px]"
+        id="tooltip"
+      >
+        <p
+          class="font-headline-md text-headline-md text-on-surface mb-1"
+          id="tooltip-title"
+        >
+          Node Title
+        </p>
+        <p class="font-body-sm text-body-sm text-primary" id="tooltip-meta">
+          Metadata Info
+        </p>
+      </div>
+      <!-- Floating Controls UI -->
+      <div class="absolute bottom-lg right-lg flex flex-col gap-sm">
+        <button
+          class="w-12 h-12 glass-panel flex items-center justify-center rounded-xl hover:bg-surface-container-high transition-colors"
+          title="Zoom In"
+        >
+          <span class="material-symbols-outlined" data-icon="add">add</span>
+        </button>
+        <button
+          class="w-12 h-12 glass-panel flex items-center justify-center rounded-xl hover:bg-surface-container-high transition-colors"
+          title="Zoom Out"
+        >
+          <span class="material-symbols-outlined" data-icon="remove"
+            >remove</span
+          >
+        </button>
+        <button
+          class="w-12 h-12 glass-panel flex items-center justify-center rounded-xl hover:bg-surface-container-high transition-colors"
+          title="Recenter"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="filter_center_focus"
+            >filter_center_focus</span
+          >
+        </button>
+      </div>
+      <!-- Legend Corner -->
+      <div
+        class="absolute top-lg left-lg glass-panel p-md rounded-xl flex flex-col gap-md min-w-[200px]"
+      >
+        <h3
+          class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest"
+        >
+          Network Legend
+        </h3>
+        <div class="flex items-center gap-md">
+          <div class="w-4 h-4 rounded-full bg-[#3b82f6]"></div>
+          <span class="font-body-sm text-body-sm">Listeners</span>
+        </div>
+        <div class="flex items-center gap-md">
+          <div class="w-4 h-4 rounded-full bg-primary"></div>
+          <span class="font-body-sm text-body-sm">Songs / Tracks</span>
+        </div>
+        <div class="flex items-center gap-md">
+          <div class="w-8 h-[2px] bg-[#282828]"></div>
+          <span class="font-body-sm text-body-sm">"LISTENED" Edge</span>
+        </div>
+        <div class="mt-sm pt-sm border-t border-outline-variant">
+          <div
+            class="flex justify-between items-center text-on-surface-variant"
+          >
+            <span class="font-label-md text-label-md">Nodes</span>
+            <span class="font-label-md text-label-md font-bold text-on-surface"
+              >1,248</span
+            >
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Bottom Player Bar (Universal Shell) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full h-[100px] bg-surface-container-low/90 backdrop-blur-2xl border-t border-white/5 z-[100] flex items-center justify-between px-xl shadow-xl"
+    >
+      <!-- Currently Playing -->
+      <div class="flex items-center gap-md min-w-[280px]">
+        <div
+          class="w-14 h-14 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-highest"
+        >
+          <img
+            alt="Album Art"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDx-eQzwuO37IJirT-vNY5R5v69APFJvZ4t9KedMN2P6Tghn1jRdv_nzVynOqnxElcg0BxCIOCe2ZPidtPMmagDLjWfNsKn9qWRLWc10_Jy6qpGPOMxyidM-a6sdAbW63vEwFzM9nMRMnVRvp8-hpm-bEUWdyZ8FkKKlIXmk-QxAAk-Hdvy7QEBQsaTdK9N0MxgBRVwE5RRx8G_odFiCJOv2P9rAewxCPl_y9d_ra2p1ve8hXJsI8gqKmCzzVq2A5mbcQ0Yb0aEy9r"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="font-body-sm text-body-sm font-bold text-on-surface truncate max-w-[180px]"
+            >Where Is My Mind?</span
+          >
+          <span class="font-label-md text-label-md text-on-surface-variant"
+            >Pixies</span
+          >
+        </div>
+        <button
+          class="text-on-surface-variant hover:text-primary transition-colors ml-sm"
+        >
+          <span class="material-symbols-outlined" data-icon="favorite"
+            >favorite</span
+          >
+        </button>
+      </div>
+      <!-- Controls -->
+      <div class="flex flex-col items-center gap-xs flex-1 max-w-2xl">
+        <div class="flex items-center gap-lg">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="shuffle"
+              >shuffle</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_previous"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_previous</span
+            >
+          </button>
+          <button
+            class="w-10 h-10 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="play_arrow"
+              style="font-variation-settings: 'FILL' 1"
+              >play_arrow</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_next"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_next</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="repeat"
+              >repeat</span
+            >
+          </button>
+        </div>
+        <div class="w-full flex items-center gap-sm">
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >1:24</span
+          >
+          <div
+            class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-primary group-hover:bg-primary-fixed transition-colors"
+              style="width: 45%"
+            ></div>
+          </div>
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >3:49</span
+          >
+        </div>
+      </div>
+      <!-- Extra Actions -->
+      <div class="flex items-center justify-end gap-md min-w-[280px]">
+        <button
+          class="text-primary hover:text-primary-fixed transition-colors flex flex-col items-center gap-1"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_circle"
+            style="font-variation-settings: 'FILL' 1"
+            >play_circle</span
+          >
+          <span class="font-label-md text-label-md">Play</span>
+        </button>
+        <button
+          class="text-on-surface-variant hover:text-on-surface transition-colors flex flex-col items-center gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="queue_music"
+            >queue_music</span
+          >
+          <span class="font-label-md text-label-md">Queue</span>
+        </button>
+        <div class="flex items-center gap-sm">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="volume_up"
+              >volume_up</span
+            >
+          </button>
+          <div
+            class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-on-surface-variant group-hover:bg-primary transition-colors"
+              style="width: 70%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = window.__USER_ID || "";
+
+      async function loadGraph() {
+        try {
+          const [usersRes, songsRes] = await Promise.all([
+            fetch(API + "/users", { method: "GET" }),
+            fetch(API + "/songs", { method: "GET" }),
+          ]);
+          const users = await usersRes.json();
+          const songs = await songsRes.json();
+
+          const edges = document.getElementById("edges");
+          const nodes = document.getElementById("nodes");
+          if (!edges || !nodes) return;
+
+          edges.innerHTML = "";
+          nodes.innerHTML = "";
+
+          const userSpacing = Math.min(600 / Math.max(users.length, 1), 150);
+          const songSpacing = Math.min(600 / Math.max(songs.length, 1), 150);
+
+          const userStartY = Math.max(100, 400 - (users.length * userSpacing) / 2);
+          const songStartY = Math.max(100, 400 - (songs.length * songSpacing) / 2);
+
+          users.forEach((u, i) => {
+            const cy = userStartY + i * userSpacing;
+            nodes.innerHTML += `
+              <g class="user-node cursor-pointer group" data-label="User: ${u.user_id}" data-playcount="-">
+                <circle class="fill-[#3b82f6] filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" cx="220" cy="${cy}" r="14"></circle>
+                <circle class="fill-none stroke-[#3b82f6]/20 stroke-1 node-pulse" cx="220" cy="${cy}" r="18"></circle>
+              </g>
+            `;
+            songs.forEach((s, j) => {
+              const sy = songStartY + j * songSpacing;
+              if (j < 5) {
+                edges.innerHTML += `<line x1="220" x2="750" y1="${cy}" y2="${sy}" class="stroke-[#282828] stroke-1"></line>`;
+              }
+            });
+          });
+
+          songs.forEach((s, j) => {
+            const sy = songStartY + j * songSpacing;
+            if (j >= 5) return;
+            nodes.innerHTML += `
+              <g class="song-node cursor-pointer group" data-label="${s.name || 'Unknown'}" data-playcount="${s.artist || ''}">
+                <circle class="fill-primary filter drop-shadow-[0_0_12px_rgba(29,185,84,0.6)]" cx="750" cy="${sy}" r="${Math.max(14, 22 - j * 2)}"></circle>
+                <circle class="fill-none stroke-primary/30 stroke-1 node-pulse" cx="750" cy="${sy}" r="${Math.max(18, 28 - j * 2)}"></circle>
+              </g>
+            `;
+          });
+
+          const legendNodes = document.querySelector(".glass-panel .font-label-md.font-bold.text-on-surface");
+          if (legendNodes) legendNodes.textContent = users.length + songs.length;
+        } catch (e) {
+          console.warn("Failed to load graph:", e);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadGraph);
+
+      // Fix parent page scrolling to keep sidebar fixed
+      try {
+        const parentDoc = window.parent.document;
+        const parentApp = parentDoc.querySelector(".stApp");
+        if (parentApp) parentApp.style.overflow = "hidden";
+        const frame = window.frameElement;
+        if (frame) {
+          frame.style.height = "100vh";
+          frame.style.width = "100%";
+          frame.style.border = "none";
+        }
+      } catch (e) {
+        console.warn("Parent container styling failed:", e);
+      }
+
+      // Simple Interaction logic for the Graph
+      const nodes = document.querySelectorAll(".user-node, .song-node");
+      const tooltip = document.getElementById("tooltip");
+      const tooltipTitle = document.getElementById("tooltip-title");
+      const tooltipMeta = document.getElementById("tooltip-meta");
+      const svg = document.getElementById("graph-svg");
+
+      nodes.forEach((node) => {
+        node.addEventListener("mouseenter", (e) => {
+          const label = node.getAttribute("data-label");
+          const plays = node.getAttribute("data-playcount");
+
+          tooltipTitle.textContent = label;
+          tooltipMeta.textContent = plays;
+
+          tooltip.classList.remove("hidden");
+          updateTooltipPosition(e, node);
+        });
+
+        node.addEventListener("mousemove", (e) => {
+          updateTooltipPosition(e, node);
+        });
+
+        node.addEventListener("mouseleave", () => {
+          tooltip.classList.add("hidden");
+        });
+      });
+
+      function updateTooltipPosition(e, node) {
+        const x = e.clientX;
+        const y = e.clientY;
+        const h = tooltip.offsetHeight;
+        const w = tooltip.offsetWidth;
+        const isUser = node.classList.contains("user-node");
+        const pad = 10;
+        let left;
+        if (isUser) {
+          left = x + pad;
+          if (left + w > window.innerWidth - 12) left = x - w - pad;
+        } else {
+          left = x - w - pad;
+          if (left < 12) left = x + pad;
+        }
+        tooltip.style.left = left + "px";
+        tooltip.style.top = Math.max(y - h - pad, 12) + "px";
+      }
+
+      // Panning logic (Micro-interaction)
+      let isDragging = false;
+      let startX, startY;
+      let viewBox = { x: 0, y: 0, w: 1000, h: 800 };
+
+      svg.addEventListener("mousedown", (e) => {
+        if (e.target === svg) {
+          isDragging = true;
+          startX = e.clientX;
+          startY = e.clientY;
+        }
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const dx = (e.clientX - startX) * (viewBox.w / svg.clientWidth);
+        const dy = (e.clientY - startY) * (viewBox.h / svg.clientHeight);
+
+        viewBox.x -= dx;
+        viewBox.y -= dy;
+
+        svg.setAttribute(
+          "viewBox",
+          `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`
+        );
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+
+      // Zoom logic for buttons
+      document
+        .querySelectorAll('button[title="Zoom In"], button[title="Zoom Out"]')
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const factor = btn.title === "Zoom In" ? 0.9 : 1.1;
+            viewBox.w *= factor;
+            viewBox.h *= factor;
+            svg.setAttribute(
+              "viewBox",
+              `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`
+            );
+          });
+        });
+    </script>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

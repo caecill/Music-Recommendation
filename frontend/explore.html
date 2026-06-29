@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Music Recommendation | Song Similarity Explorer</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474746",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "primary-fixed": "#72fe8f",
+              tertiary: "#c8c6c6",
+              "inverse-surface": "#e5e2e1",
+              primary: "#53e076",
+              "surface-bright": "#393939",
+              "on-tertiary-fixed-variant": "#474747",
+              "inverse-on-surface": "#313030",
+              "on-primary-fixed": "#002108",
+              "on-tertiary-fixed": "#1b1c1c",
+              "primary-fixed-dim": "#53e076",
+              "primary-container": "#1db954",
+              "on-tertiary": "#303030",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed": "#e4e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-container": "#383838",
+              "on-secondary-fixed-variant": "#474746",
+              "outline-variant": "#3d4a3d",
+              background: "#131313",
+              "surface-container-highest": "#353534",
+              secondary: "#c8c6c5",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#005320",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-surface-variant": "#bccbb9",
+              "on-error": "#690005",
+              "surface-container-high": "#2a2a2a",
+              "surface-variant": "#353534",
+              "on-primary": "#003914",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#c8c6c5",
+              "surface-container-low": "#1c1b1b",
+              outline: "#869585",
+              surface: "#131313",
+              "inverse-primary": "#006e2d",
+              "surface-container": "#201f1f",
+              "on-background": "#e5e2e1",
+              "on-secondary": "#303030",
+              error: "#ffb4ab",
+              "surface-tint": "#53e076",
+              "on-primary-container": "#004118",
+              "on-secondary-container": "#b7b5b4",
+              "on-surface": "#e5e2e1",
+              "tertiary-container": "#a2a1a1",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              base: "8px",
+              "container-margin": "24px",
+              md: "16px",
+              sm: "8px",
+              xs: "4px",
+              lg: "24px",
+              xl: "32px",
+              gutter: "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-xl": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-md": ["20px", { lineHeight: "1.4", fontWeight: "700" }],
+              "headline-xl": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.04em",
+                  fontWeight: "800",
+                },
+              ],
+              "body-sm": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        overflow: hidden;
+        height: 100%;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .glass-blur {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #353534;
+        border-radius: 10px;
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #353534 transparent;
+      }
+      main {
+        overscroll-behavior: contain;
+      }
+      .active-nav-indicator {
+        box-shadow: 0 0 15px rgba(29, 185, 84, 0.3);
+      }
+      @media (max-width: 767px) {
+        main {
+          padding: 16px !important;
+          top: 60px !important;
+          width: 100% !important;
+          bottom: 64px !important;
+        }
+        header {
+          width: 100% !important;
+          padding-left: 56px !important;
+          padding-right: 12px !important;
+        }
+        header .search-container {
+          display: none !important;
+        }
+        .page-header-controls {
+          flex-direction: column !important;
+          align-items: stretch !important;
+        }
+        .comparison-table th,
+        .comparison-table td {
+          padding: 12px !important;
+        }
+        .comparison-table th:last-child,
+        .comparison-table td:last-child {
+          display: none !important;
+        }
+        .insights-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .genre-pill {
+          font-size: 11px !important;
+          padding: 4px 12px !important;
+        }
+        footer .player-extra {
+          display: none !important;
+        }
+        footer .player-controls-main {
+          display: none !important;
+        }
+        footer .player-progress {
+          display: none !important;
+        }
+        footer {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+          height: 64px !important;
+        }
+        footer .player-now-playing {
+          min-width: 0 !important;
+          flex: 1 !important;
+        }
+        footer .player-now-playing img {
+          width: 40px !important;
+          height: 40px !important;
+        }
+        footer .player-mobile-controls {
+          display: flex !important;
+        }
+      }
+      @media (max-width: 480px) {
+        main {
+          padding: 12px !important;
+        }
+        .page-header-controls {
+          flex-direction: column !important;
+          align-items: stretch !important;
+        }
+        .comparison-table th,
+        .comparison-table td {
+          padding: 8px !important;
+          font-size: 12px !important;
+        }
+        .comparison-table th:nth-child(4),
+        .comparison-table td:nth-child(4) {
+          display: none !important;
+        }
+        .insights-grid {
+          grid-template-columns: 1fr !important;
+        }
+        footer .player-now-playing .truncate-title {
+          max-width: 100px !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-background font-body-lg selection:bg-primary selection:text-on-primary overflow-hidden"
+    data-page="Explore"
+  >
+    <!-- Top Navigation Bar -->
+    <header
+      class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-20 bg-background/80 glass-blur z-50 flex justify-between items-center px-xl border-b border-outline-variant/30"
+    >
+      <div class="flex items-center gap-md flex-1 search-container">
+        <div class="relative w-full max-w-xl">
+          <span
+            class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant"
+            data-icon="search"
+            >search</span
+          >
+          <input
+            class="w-full bg-surface-container-high border border-outline-variant/20 rounded-xl py-2.5 pl-xl pr-md text-body-sm focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-highest transition-all"
+            placeholder="Search similarities, artists, or genres..."
+            type="text"
+          />
+        </div>
+      </div>
+      <div class="flex items-center gap-lg ml-lg">
+        <div class="flex items-center gap-md">
+          <button
+            class="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant hover:text-on-surface"
+          >
+            <span class="material-symbols-outlined" data-icon="notifications"
+              >notifications</span
+            >
+          </button>
+          <button
+            class="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant hover:text-on-surface"
+          >
+            <span class="material-symbols-outlined" data-icon="settings"
+              >settings</span
+            >
+          </button>
+        </div>
+        <div
+          class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all cursor-pointer"
+        >
+          <img
+            alt="User Profile"
+            class="w-full h-full object-cover"
+            data-alt="A professional headshot of a young creative professional with a warm smile, set against a clean, soft-focus studio background. The lighting is bright and even, reinforcing a modern and trustworthy digital presence. The style is crisp and high-resolution with a focus on human connectivity and premium service."
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuASRQJli7qQRt8Nn3bZDqVitua-1EUrdOp_E9oNA4FrOangiWFhnnZEdhDYEMyUAeSm53HHiafpTRR2q8UY8rsIXnD7Bcc1G_Qjn2HEdDx-Cti4IBEyh7UoG7JBDzDtujkbM_Mi9Fzk-tDLidGEXKHWS1raCgKB71U2sUa_ir4m9xHXfiAg4SULmGuwNRvUTrOshFgmEydv4rtbvbtP0WjbDAgyaLrotCCCABYQ1xAMEBF5WfAeSDGelZRr0ftxv3FCCQvjySdaWtON"
+          />
+        </div>
+      </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main
+      class="fixed top-20 left-0 w-full md:left-[240px] md:w-[calc(100%-240px)] bottom-[90px] overflow-y-auto custom-scrollbar p-xl bg-background"
+    >
+      <!-- Page Header & Controls -->
+      <section
+        class="mb-xl flex flex-col lg:flex-row lg:items-end justify-between gap-lg"
+      >
+        <div class="max-w-4xl">
+          <h2 class="font-headline-xl text-headline-xl text-on-surface mb-sm">
+            Similarity Explorer
+          </h2>
+          <p class="text-on-surface-variant font-body-lg leading-relaxed">
+            Analyze deep acoustic relationships between tracks. Our engine
+            calculates harmonic resonance, rhythmic complexity, and emotional
+            metadata to find your next favorite sound.
+          </p>
+        </div>
+        <div class="flex items-center gap-md shrink-0">
+          <div
+            class="flex bg-surface-container-high p-1 rounded-xl border border-outline-variant/30"
+          >
+            <button
+              class="px-md py-2 rounded-lg text-label-md font-bold bg-primary text-on-primary shadow-lg shadow-primary/20"
+            >
+              Sort by similarity
+            </button>
+            <button
+              class="px-md py-2 rounded-lg text-label-md font-bold text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              Filter by genre
+            </button>
+          </div>
+          <button
+            class="p-3 bg-surface-container-high border border-outline-variant/30 hover:bg-surface-container-highest rounded-xl transition-all"
+          >
+            <span class="material-symbols-outlined" data-icon="tune">tune</span>
+          </button>
+        </div>
+      </section>
+      <!-- Comparison Table Container - Optimized for width -->
+      <section
+        class="bg-surface-container-low rounded-2xl border border-outline-variant/30 overflow-hidden mb-xl shadow-sm"
+      >
+        <div class="overflow-x-auto">
+          <table
+            id="explore-table"
+            class="w-full text-left border-collapse table-fixed comparison-table"
+          >
+            <thead>
+              <tr
+                class="border-b border-outline-variant/30 bg-surface-container-lowest/50"
+              >
+                <th
+                  class="px-xl py-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-widest w-1/3"
+                >
+                  Song 1 (Source)
+                </th>
+                <th
+                  class="px-xl py-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-widest w-1/3"
+                >
+                  Song 2 (Target)
+                </th>
+                <th
+                  class="px-xl py-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-widest w-64"
+                >
+                  Similarity Score
+                </th>
+                <th
+                  class="px-xl py-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-widest w-24 text-right"
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/20">
+              <!-- Row 1: The Highlight -->
+              <tr
+                class="group hover:bg-surface-container-high/40 transition-all cursor-pointer"
+              >
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 1"
+                        class="w-full h-full object-cover"
+                        data-alt="Atmospheric album cover art for Paranoid Android by Radiohead featuring abstract geometric shapes and cool blue and deep grey tones."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAftxnGV0tfoW2qVzNscRGdw-8DY5FgVBQALwaysYRa8foPZJtxT9Ngot1p9E6a8IqHOnTJ2yMFL7KjKP9HFW560gH_aXFmc2UepGZUgh6MWaKxq3KLDiqLCvqv-EpfJtM1uIbaHZ6iwghD_WZLH5UazIyw4z6DCG3d0jVSZOeJaJ6AvStssY-TUL4iQFDFUP1eX4vU8PpaXHA7AbxMfNq5D6gcoMPUTyb7aNSksjObHkeefM7FeisZMbF-l0H6r1lqcHqnSbCgWlu-"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Paranoid Android
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        Radiohead • Alternative Rock
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 2"
+                        class="w-full h-full object-cover"
+                        data-alt="Retro cinematic album art for Under the Bridge by Red Hot Chili Peppers featuring warm sunset tones."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrtRDPwA1Y7guCCbpHtMgGFz-BFXoEcUL5SkTSybvYHWZxGqnOye7XYHjbZmccR_KWEPAm1YgYI_5GgIXSEJcpwMemcOpTiR5a5yif7KZlhUw6O4pjHIXDiQo4VO4c914baYT8cJETxtkStPGT-LEoMg9OVSfHN8KSenCEGdmf7oXzpakH2_DXsS1NVIma8MZD1omhywDAZhcXrTH8reQOLNynhSBWn3whYkpgz2AbgPHUN0pL9-CBmi1_IzO50psMuX34W5OQxBON"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Under the Bridge
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        Red Hot Chili Peppers • Rock
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex flex-col gap-sm">
+                    <div class="flex justify-between items-end">
+                      <span class="font-bold text-primary text-headline-md"
+                        >92%</span
+                      >
+                      <span class="text-label-md text-on-surface-variant"
+                        >Harmonic Match</span
+                      >
+                    </div>
+                    <div
+                      class="h-2.5 w-full bg-surface-container-highest rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="h-full bg-primary shadow-[0_0_12px_rgba(83,224,118,0.5)] w-[92%] transition-all duration-1000 ease-out"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg text-right">
+                  <button
+                    class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-on-primary hover:border-primary transition-all group/play shadow-sm"
+                  >
+                    <span
+                      class="material-symbols-outlined"
+                      data-icon="play_arrow"
+                      style="font-variation-settings: 'FILL' 1"
+                      >play_arrow</span
+                    >
+                  </button>
+                </td>
+              </tr>
+              <!-- Row 2 -->
+              <tr
+                class="group hover:bg-surface-container-high/40 transition-all cursor-pointer"
+              >
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 1"
+                        class="w-full h-full object-cover"
+                        data-alt="Modern synthwave album art with vibrant neon green and deep violet gradients."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK_t6IuNGUsNdkHU2WbL1dzbBgIaayPkHicPcWdIWSuhzMk4Opv1TWU_cpnfA_U7MRTTc4-zuv1TV8Hu-J7N08x4YHIb2Zq5jXNWMYOnz9CrRilrosCLliMhDbNGzcbi0M3BVCgKh2Aqg-IBUvOVlFC-Z6xevNceaKwXLAbbeCDR-IisVtmjLDTVVD0ppnp0cJUGNLvOM2QFTPc7AVepOBRo2lalbehlI6iN-Mp-hXMow0EWC-YhFKao1RxAB4rq2agLsc4X4UwHou"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Midnight City
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        M83 • Dream Pop
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 2"
+                        class="w-full h-full object-cover"
+                        data-alt="Crisp high-tech electronic music album cover featuring sharp white lines on a pitch-black background."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBmvf7wXbla9qgqqjUIneCnSjuFvcw89VAQ7jSafrMzUOBP_AcEFHrPWpD2plt2qXuwQmSMfYBq1N3umSykyvUDZoXmK6w3D21G1ZrTfeYixW_7bjKNrhJJUrWXz7GV81oHgkrmf6Gi66xSoxhB5bsvoFpt4TGIm4qxJPu_VFDS07NHibOiJCLW3w9G9NOcdxK3TKXX3SqH4HuNQI1lmf6CQmTfyytmTtRTLlu8heKjZtEb3gIYUERDcc0i-HaWBsT8tXN8MBzOoli"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Time
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        Hans Zimmer • Cinematic
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex flex-col gap-sm">
+                    <div class="flex justify-between items-end">
+                      <span class="font-bold text-primary text-headline-md"
+                        >78%</span
+                      >
+                      <span class="text-label-md text-on-surface-variant"
+                        >Texture Match</span
+                      >
+                    </div>
+                    <div
+                      class="h-2.5 w-full bg-surface-container-highest rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="h-full bg-primary shadow-[0_0_12px_rgba(83,224,118,0.3)] w-[78%] transition-all duration-1000 ease-out"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg text-right">
+                  <button
+                    class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-on-primary hover:border-primary transition-all group/play"
+                  >
+                    <span
+                      class="material-symbols-outlined"
+                      data-icon="play_arrow"
+                      >play_arrow</span
+                    >
+                  </button>
+                </td>
+              </tr>
+              <!-- Row 3 -->
+              <tr
+                class="group hover:bg-surface-container-high/40 transition-all cursor-pointer"
+              >
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 1"
+                        class="w-full h-full object-cover"
+                        data-alt="Abstract fluid art album cover with swirls of neon green and obsidian black."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDInGJWhplPDFjOQ9I0qehywma8dlMh14eY1-sK74q7jsdLvYWGSVrAz_qVB49YlMyY8fzlVhXlzM5uVeZ7EdakPTMNnY3A3ttW3QbbL6CW5dPJp038pCst6JxN3-Imbgwlt6Z3nLy5sKFp_flwpCKwQ_sVlNXe_sJnisCwInWU6Q6lI7wd-ViVmVEMzWjTkLCk3lu9LlO3CoAIZ0WH8TBUJkerthFV97p8PUCtl4WniB6c3aewkVoANZmhY-gWfstvWylrcFDiUPN1"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Blinding Lights
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        The Weeknd • Synth-pop
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div
+                      class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        alt="Song 2"
+                        class="w-full h-full object-cover"
+                        data-alt="Minimalist landscape album cover with a single bright white sun rising over a dark range."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwiW5s-gH9YBTs2jtturklHEBpPkjmrZdzuah28hvRx6w2ZIFklXo8K28E-KAawP9_qbE7SSx1jpEdggiy50TnTJ3nG2kutj2m5WBIvb_q9ZhvZSzJIDHCgw6ARjubl2szmdwb8PuduVZPVs2LB7yVk9xqTbyMPKr6oFnoc8b_EmE51DTnnrw7bojlnP05z-IQgzP5DdNbizswq4O0e4kKT5EdEWZYE9V2i6QMclyVnPB-dxYjPMZM0wI5ivipbn_4PBFxbvMxC8IJ"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="font-headline-md text-headline-md text-on-surface truncate"
+                      >
+                        Enjoy the Silence
+                      </div>
+                      <div
+                        class="text-body-sm text-on-surface-variant truncate"
+                      >
+                        Depeche Mode • New Wave
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex flex-col gap-sm">
+                    <div class="flex justify-between items-end">
+                      <span class="font-bold text-primary text-headline-md"
+                        >64%</span
+                      >
+                      <span class="text-label-md text-on-surface-variant"
+                        >Vibe Match</span
+                      >
+                    </div>
+                    <div
+                      class="h-2.5 w-full bg-surface-container-highest rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="h-full bg-primary shadow-[0_0_12px_rgba(83,224,118,0.2)] w-[64%] transition-all duration-1000 ease-out"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg text-right">
+                  <button
+                    class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-on-primary hover:border-primary transition-all group/play"
+                  >
+                    <span
+                      class="material-symbols-outlined"
+                      data-icon="play_arrow"
+                      >play_arrow</span
+                    >
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <!-- Insights Bento Section - Optimized for compact balanced layout -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+        <div
+          class="col-span-1 lg:col-span-2 bg-surface-container rounded-2xl p-xl border border-outline-variant/30 flex flex-col justify-between"
+        >
+          <div>
+            <h3
+              class="font-headline-md text-headline-md text-on-surface mb-md flex items-center gap-sm"
+            >
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="auto_awesome"
+                >auto_awesome</span
+              >
+              Deep Correlation Analysis
+            </h3>
+            <p
+              class="text-body-sm text-on-surface-variant mb-xl leading-relaxed max-w-3xl"
+            >
+              Our analysis of
+              <span class="text-primary font-bold">Paranoid Android</span> and
+              <span class="text-primary font-bold">Under the Bridge</span>
+              reveals a rare convergence in chord progression density and
+              spectral flux in the 2-4kHz range, identifying a shared "acoustic
+              fingerprint" despite genre differences.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+            <div
+              class="bg-surface-container-high/60 border border-outline-variant/10 rounded-xl p-md"
+            >
+              <div
+                class="text-label-md text-on-surface-variant mb-1 uppercase tracking-tighter"
+              >
+                Tempo
+              </div>
+              <div class="font-bold text-on-surface text-lg">82 BPM</div>
+            </div>
+            <div
+              class="bg-surface-container-high/60 border border-outline-variant/10 rounded-xl p-md"
+            >
+              <div
+                class="text-label-md text-on-surface-variant mb-1 uppercase tracking-tighter"
+              >
+                Key
+              </div>
+              <div class="font-bold text-on-surface text-lg">C Minor</div>
+            </div>
+            <div
+              class="bg-surface-container-high/60 border border-outline-variant/10 rounded-xl p-md"
+            >
+              <div
+                class="text-label-md text-on-surface-variant mb-1 uppercase tracking-tighter"
+              >
+                Energy
+              </div>
+              <div class="font-bold text-on-surface text-lg">High</div>
+            </div>
+            <div
+              class="bg-surface-container-high/60 border border-outline-variant/10 rounded-xl p-md"
+            >
+              <div
+                class="text-label-md text-on-surface-variant mb-1 uppercase tracking-tighter"
+              >
+                Acoustic
+              </div>
+              <div class="font-bold text-on-surface text-lg">42%</div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-primary-container/5 border border-primary/20 rounded-2xl p-xl flex flex-col justify-between"
+        >
+          <div>
+            <div
+              class="inline-flex px-3 py-1 rounded-full bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-widest mb-md"
+            >
+              Top Suggestion
+            </div>
+            <h3 class="font-headline-md text-headline-md text-primary mb-md">
+              AI Discovery Path
+            </h3>
+            <p
+              class="text-body-sm text-on-surface-variant leading-relaxed mb-lg"
+            >
+              Based on your exploration, you might also like the similarity
+              pattern between
+              <span class="text-on-surface font-bold">Karma Police</span> and
+              <span class="text-on-surface font-bold">Space Oddity</span>.
+            </p>
+          </div>
+          <button
+            class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold text-label-md hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-primary/10"
+          >
+            Explore Path
+          </button>
+        </div>
+      </section>
+      <!-- Spacer for Footer Player -->
+      <div class="h-20"></div>
+    </main>
+    <!-- Bottom Player Bar -->
+    <!-- Bottom Player Bar (BottomNavBar) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full h-[90px] bg-surface-container-low/90 backdrop-blur-2xl border-t border-white/5 z-[100] flex items-center justify-between px-xl shadow-xl"
+    >
+      <!-- Currently Playing -->
+      <div class="flex items-center gap-md min-w-[280px] player-now-playing">
+        <div
+          class="w-14 h-14 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-highest"
+        >
+          <img
+            alt="Album Art"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDx-eQzwuO37IJirT-vNY5R5v69APFJvZ4t9KedMN2P6Tghn1jRdv_nzVynOqnxElcg0BxCIOCe2ZPidtPMmagDLjWfNsKn9qWRLWc10_Jy6qpGPOMxyidM-a6sdAbW63vEwFzM9nMRMnVRvp8-hpm-bEUWdyZ8FkKKlIXmk-QxAAk-Hdvy7QEBQsaTdK9N0MxgBRVwE5RRx8G_odFiCJOv2P9rAewxCPl_y9d_ra2p1ve8hXJsI8gqKmCzzVq2A5mbcQ0Yb0aEy9r"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="font-body-sm text-body-sm font-bold text-on-surface truncate max-w-[180px]"
+            >Where Is My Mind?</span
+          >
+          <span class="font-label-md text-label-md text-on-surface-variant"
+            >Pixies</span
+          >
+        </div>
+        <button
+          class="text-on-surface-variant hover:text-primary transition-colors ml-sm"
+        >
+          <span class="material-symbols-outlined" data-icon="favorite"
+            >favorite</span
+          >
+        </button>
+      </div>
+      <!-- Mobile Play Button -->
+      <div class="player-mobile-controls hidden items-center justify-center">
+        <button
+          class="w-11 h-11 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95 shadow-lg"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_arrow"
+            style="font-variation-settings: 'FILL' 1"
+            >play_arrow</span
+          >
+        </button>
+      </div>
+      <!-- Controls -->
+      <div
+        class="flex flex-col items-center gap-xs flex-1 max-w-2xl player-controls-main"
+      >
+        <div class="flex items-center gap-lg">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="shuffle"
+              >shuffle</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_previous"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_previous</span
+            >
+          </button>
+          <button
+            class="w-10 h-10 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="play_arrow"
+              style="font-variation-settings: 'FILL' 1"
+              >play_arrow</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_next"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_next</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="repeat"
+              >repeat</span
+            >
+          </button>
+        </div>
+        <div class="w-full flex items-center gap-sm player-progress">
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >1:24</span
+          >
+          <div
+            class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-primary group-hover:bg-primary-fixed transition-colors"
+              style="width: 45%"
+            ></div>
+          </div>
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >3:49</span
+          >
+        </div>
+      </div>
+      <!-- Extra Actions -->
+      <div
+        class="flex items-center justify-end gap-md min-w-[280px] player-extra"
+      >
+        <button
+          class="text-primary hover:text-primary-fixed transition-colors flex flex-col items-center gap-1"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_circle"
+            style="font-variation-settings: 'FILL' 1"
+            >play_circle</span
+          >
+          <span class="font-label-md text-label-md">Play</span>
+        </button>
+        <button
+          class="text-on-surface-variant hover:text-on-surface transition-colors flex flex-col items-center gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="queue_music"
+            >queue_music</span
+          >
+          <span class="font-label-md text-label-md">Queue</span>
+        </button>
+        <div class="flex items-center gap-sm">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="volume_up"
+              >volume_up</span
+            >
+          </button>
+          <div
+            class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-on-surface-variant group-hover:bg-primary transition-colors"
+              style="width: 70%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = window.__USER_ID || "";
+
+      async function loadExplore() {
+        try {
+          const res = await fetch(API + "/songs", { method: "GET" });
+          const songs = await res.json();
+          const tbody = document.querySelector("#explore-table tbody");
+          if (!tbody || !songs.length) return;
+          tbody.innerHTML = "";
+
+          const types = ["Harmonic Match", "Texture Match", "Vibe Match"];
+          for (let i = 0; i < Math.min(songs.length - 1, 3); i++) {
+            const s1 = songs[i];
+            const s2 = songs[i + 1];
+            const pct = [92, 78, 64][i] || 50 + Math.floor(Math.random() * 30);
+            const imgUrl =
+              s1.spotify_preview_url ||
+              "https://lh3.googleusercontent.com/aida-public/AB6AXuAftxnGV0tfoW2qVzNscRGdw-8DY5FgVBQALwaysYRa8foPZJtxT9Ngot1p9E6a8IqHOnTJ2yMFL7KjKP9HFW560gH_aXFmc2UepGZUgh6MWaKxq3KLDiqLCvqv-EpfJtM1uIbaHZ6iwghD_WZLH5UazIyw4z6DCG3d0jVSZOeJaJ6AvStssY-TUL4iQFDFUP1eX4vU8PpaXHA7AbxMfNq5D6gcoMPUTyb7aNSksjObHkeefM7FeisZMbF-l0H6r1lqcHqnSbCgWlu-";
+            tbody.innerHTML += `
+              <tr class="group hover:bg-surface-container-high/40 transition-all cursor-pointer">
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300">
+                      <img class="w-full h-full object-cover" src="${imgUrl}" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-headline-md text-headline-md text-on-surface truncate">${
+                        s1.name || "Unknown"
+                      }</div>
+                      <div class="text-body-sm text-on-surface-variant truncate">${
+                        s1.artist || ""
+                      } • ${s1.genre || ""}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex items-center gap-lg">
+                    <div class="w-14 h-14 rounded-xl bg-surface-dim flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform duration-300">
+                      <img class="w-full h-full object-cover" src="${
+                        s2.spotify_preview_url || imgUrl
+                      }" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-headline-md text-headline-md text-on-surface truncate">${
+                        s2.name || "Unknown"
+                      }</div>
+                      <div class="text-body-sm text-on-surface-variant truncate">${
+                        s2.artist || ""
+                      } • ${s2.genre || ""}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg">
+                  <div class="flex flex-col gap-sm">
+                    <div class="flex justify-between items-end">
+                      <span class="font-bold text-primary text-headline-md">${pct}%</span>
+                      <span class="text-label-md text-on-surface-variant">${
+                        types[i]
+                      }</span>
+                    </div>
+                    <div class="h-2.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                      <div class="h-full bg-primary shadow-[0_0_12px_rgba(83,224,118,0.5)] w-[${pct}%] transition-all duration-1000 ease-out"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-xl py-lg text-right">
+                  <button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-on-primary hover:border-primary transition-all group/play shadow-sm" onclick="playExploreTrack('${
+                    s1.track_id || ""
+                  }')">
+                    <span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1">play_arrow</span>
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+        } catch (e) {
+          console.warn("Failed to load explore:", e);
+        }
+      }
+
+      async function playExploreTrack(trackId) {
+        if (!trackId || !USER_ID) return;
+        try {
+          await fetch(API + "/play", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: USER_ID, track_id: trackId }),
+          });
+        } catch (e) {
+          console.warn("Failed to record play:", e);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadExplore);
+    </script>
+    <script>
+      // Interactive Micro-interactions
+      document.querySelectorAll("tr.group").forEach((row) => {
+        row.addEventListener("mouseenter", () => {
+          const bar = row.querySelector(".h-full.bg-primary");
+          if (bar) {
+            bar.style.filter =
+              "brightness(1.1) drop-shadow(0 0 8px rgba(83, 224, 118, 0.6))";
+          }
+        });
+        row.addEventListener("mouseleave", () => {
+          const bar = row.querySelector(".h-full.bg-primary");
+          if (bar) {
+            bar.style.filter = "none";
+          }
+        });
+      });
+
+      const playBtns = document.querySelectorAll(
+        'footer button .material-symbols-outlined[data-icon="play_circle"]'
+      );
+      playBtns.forEach(function (btn) {
+        let isPlaying = false;
+        btn.parentElement.addEventListener("click", () => {
+          isPlaying = !isPlaying;
+          btn.innerText = isPlaying ? "pause_circle" : "play_circle";
+        });
+      });
+    </script>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

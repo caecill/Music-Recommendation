@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Music Recommendation | Sign In</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474746",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "primary-fixed": "#72fe8f",
+              tertiary: "#c8c6c6",
+              "inverse-surface": "#e5e2e1",
+              primary: "#53e076",
+              "surface-bright": "#393939",
+              "on-tertiary-fixed-variant": "#474747",
+              "inverse-on-surface": "#313030",
+              "on-primary-fixed": "#002108",
+              "on-tertiary-fixed": "#1b1c1c",
+              "primary-fixed-dim": "#53e076",
+              "primary-container": "#1db954",
+              "on-tertiary": "#303030",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed": "#e4e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-fixed-variant": "#474747",
+              "on-tertiary-container": "#383838",
+              "on-secondary-fixed-variant": "#474746",
+              "outline-variant": "#3d4a3d",
+              background: "#131313",
+              "surface-container-highest": "#353534",
+              secondary: "#c8c6c5",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#005320",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-surface-variant": "#bccbb9",
+              "on-error": "#690005",
+              "surface-container-high": "#2a2a2a",
+              "surface-variant": "#353534",
+              "on-primary": "#003914",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#c8c6c5",
+              "on-background": "#e5e2e1",
+              "on-surface": "#e5e2e1",
+              "surface-container-low": "#1c1b1b",
+              "surface-container": "#201f1f",
+              "inverse-primary": "#006e2d",
+              "on-primary-container": "#004118",
+              "on-secondary-container": "#ffffff",
+              outline: "#869585",
+              "on-error-container": "#ffdad6",
+              "outline-variant": "#3d4a3d",
+              error: "#ffb4ab",
+              "primary-fixed-dim": "#53e076",
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+            spacing: {
+              xs: "4px",
+              sm: "8px",
+              md: "16px",
+              lg: "24px",
+              xl: "32px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      html, body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #131313;
+        overflow-y: auto;
+      }
+      .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: #1c1b1b;
+        border: 1px solid #3d4a3d;
+        border-radius: 24px;
+        padding: 40px 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 16px;
+          min-height: 100vh;
+        }
+        .login-card {
+          padding: 24px 20px;
+          border-radius: 20px;
+        }
+        .login-brand h1 {
+          font-size: 26px;
+        }
+        .social-buttons {
+          flex-direction: column;
+        }
+      }
+      .login-brand {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .login-brand h1 {
+        font-size: 32px;
+        font-weight: 800;
+        color: #53e076;
+        letter-spacing: -0.02em;
+        margin: 0;
+        line-height: 1.2;
+      }
+      .login-brand p {
+        color: #bccbb9;
+        font-size: 14px;
+        margin: 4px 0 0;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #bccbb9;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .form-group .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .form-group .input-wrapper .icon {
+        position: absolute;
+        left: 14px;
+        color: #bccbb9;
+        font-size: 20px;
+        pointer-events: none;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 14px 14px 14px 44px;
+        background: #2a2a2a;
+        border: 1px solid #3d4a3d;
+        border-radius: 12px;
+        color: #e5e2e1;
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+        outline: none;
+        transition: all 0.2s;
+      }
+      .form-group input::placeholder {
+        color: #6b7a69;
+      }
+      .form-group input:focus {
+        border-color: #53e076;
+        box-shadow: 0 0 0 3px rgba(83, 224, 118, 0.15);
+      }
+      .form-group input.error {
+        border-color: #ffb4ab;
+        box-shadow: 0 0 0 3px rgba(255, 180, 171, 0.15);
+      }
+      .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .form-options label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #bccbb9;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .form-options input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #53e076;
+        border-radius: 4px;
+      }
+      .form-options a {
+        color: #53e076;
+        font-size: 13px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .form-options a:hover {
+        color: #72fe8f;
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: #53e076;
+        color: #002108;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: "Inter", sans-serif;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #72fe8f;
+        transform: scale(1.01);
+      }
+      .btn-primary:active {
+        transform: scale(0.98);
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 24px 0;
+        color: #6b7a69;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #3d4a3d;
+      }
+      .social-buttons {
+        display: flex;
+        gap: 12px;
+      }
+      .social-buttons button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        background: #2a2a2a;
+        border: 1px solid #3d4a3d;
+        border-radius: 12px;
+        color: #e5e2e1;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: "Inter", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .social-buttons button:hover {
+        background: #353534;
+        border-color: #869585;
+      }
+      .signup-prompt {
+        text-align: center;
+        margin-top: 24px;
+        color: #bccbb9;
+        font-size: 13px;
+      }
+      .signup-prompt a {
+        color: #53e076;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .signup-prompt a:hover {
+        color: #72fe8f;
+      }
+      .error-message {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: rgba(147, 0, 10, 0.2);
+        border: 1px solid #93000a;
+        border-radius: 12px;
+        color: #ffb4ab;
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+      .error-message .icon {
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Login Section -->
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-brand">
+          <h1>Music Recommendation</h1>
+          <p>Sign in to continue your music journey</p>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+          <span class="material-symbols-outlined icon">error</span>
+          <span id="errorText">Invalid email or password</span>
+        </div>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+          <div class="form-group">
+            <label for="email">Email or Username</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">mail</span>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter email or username"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">lock</span>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label>
+              <input type="checkbox" checked />
+              Remember me
+            </label>
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+
+        <div class="divider">or continue with</div>
+
+        <div class="social-buttons">
+          <button onclick="alert('Google login coming soon')">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                fill="#4285F4"
+              />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"
+              />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335"
+              />
+            </svg>
+            Google
+          </button>
+          <button onclick="alert('Apple login coming soon')">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+              />
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <div class="signup-prompt">
+          Don't have an account?
+          <a href="#" onclick="goToRegister()">Sign up</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+
+      function goToRegister() {
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", "Register");
+        window.location.search = params.toString();
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const errorMsg = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+
+        errorMsg.style.display = "none";
+
+        if (!email || !password) {
+          errorText.textContent = "Please fill in all fields";
+          errorMsg.style.display = "flex";
+          return false;
+        }
+
+        try {
+          const res = await fetch(API + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: email }),
+          });
+          const data = await res.json();
+
+          if (data.status === "success") {
+            try {
+              const parentDoc = window.parent.document;
+              parentDoc.title = "Music Recommendation | Premium Curator";
+            } catch (e) {}
+            const params = new URLSearchParams(window.location.search);
+            params.set("page", "Home");
+            params.set("user_id", email);
+            window.location.search = params.toString();
+          } else {
+            errorText.textContent = data.message || "Login failed";
+            errorMsg.style.display = "flex";
+          }
+        } catch (e) {
+          errorText.textContent =
+            "Cannot connect to server. Make sure the backend is running.";
+          errorMsg.style.display = "flex";
+        }
+        return false;
+      }
+    </script>
+  </body>
+</html>

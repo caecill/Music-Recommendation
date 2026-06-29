@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+      }
+      html { overflow: hidden; height: 100%; }
+      .glass-header {
+        background: rgba(19, 19, 19, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      main {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 90px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 24px;
+        background-color: #131313;
+      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #353534; border-radius: 10px; }
+      * { scrollbar-width: thin; scrollbar-color: #353534 transparent; }
+      .song-row:hover .play-overlay {
+        opacity: 1;
+      }
+      @media (max-width: 767px) {
+        main { padding-left: 12px; padding-right: 12px; }
+        header {
+          width: 100% !important;
+          padding-left: 56px !important;
+          padding-right: 12px !important;
+        }
+        header .search-container { display: none !important; }
+        .list-header { display: none !important; }
+        .song-row {
+          grid-template-columns: 40px 1fr 60px !important;
+          padding: 10px 0 !important;
+        }
+        .song-row .col-album { display: none !important; }
+        .song-row .col-genre { display: none !important; }
+        .song-row .col-plays { font-size: 12px !important; padding-right: 0 !important; }
+        .hero-section { flex-direction: column !important; text-align: center !important; padding: 16px !important; }
+        .hero-section .hero-avatar { width: 120px !important; height: 120px !important; }
+        .hero-section .hero-title { font-size: 28px !important; }
+        .hero-stats { justify-content: center !important; }
+        .ai-analysis { grid-column: span 1 !important; }
+        footer .player-extra { display: none !important; }
+        footer .player-controls-main { display: none !important; }
+        footer .player-progress { display: none !important; }
+        footer { padding-left: 12px !important; padding-right: 12px !important; height: 64px !important; }
+        footer .player-now-playing { min-width: 0 !important; flex: 1 !important; }
+        footer .player-now-playing img { width: 40px !important; height: 40px !important; }
+        footer .player-now-playing .truncate-title { max-width: 120px !important; }
+      }
+      @media (max-width: 480px) {
+        .hero-section .hero-title { font-size: 22px !important; }
+        .hero-section .hero-avatar { width: 100px !important; height: 100px !important; }
+        .hero-section { padding: 12px !important; }
+        .song-row {
+          grid-template-columns: 32px 1fr 50px !important;
+          padding: 8px 0 !important;
+        }
+        .song-row .col-album { display: none !important; }
+        .song-row .col-genre { display: none !important; }
+        .song-row .col-plays { font-size: 11px !important; padding-right: 0 !important; }
+        .ai-analysis { grid-column: span 1 !important; }
+        footer .player-now-playing .truncate-title { max-width: 100px !important; }
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474746",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "primary-fixed": "#72fe8f",
+              tertiary: "#c8c6c6",
+              "inverse-surface": "#e5e2e1",
+              primary: "#53e076",
+              "surface-bright": "#393939",
+              "on-tertiary-fixed-variant": "#474747",
+              "inverse-on-surface": "#313030",
+              "on-primary-fixed": "#002108",
+              "on-tertiary-fixed": "#1b1c1c",
+              "primary-fixed-dim": "#53e076",
+              "primary-container": "#1db954",
+              "on-tertiary": "#303030",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed": "#e4e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-container": "#383838",
+              "on-secondary-fixed-variant": "#474746",
+              "outline-variant": "#3d4a3d",
+              background: "#131313",
+              "surface-container-highest": "#353534",
+              secondary: "#c8c6c5",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#005320",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-surface-variant": "#bccbb9",
+              "on-error": "#690005",
+              "surface-container-high": "#2a2a2a",
+              "surface-variant": "#353534",
+              "on-primary": "#003914",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#c8c6c5",
+              "surface-container-low": "#1c1b1b",
+              outline: "#869585",
+              surface: "#131313",
+              "inverse-primary": "#006e2d",
+              "surface-container": "#201f1f",
+              "on-background": "#e5e2e1",
+              "on-secondary": "#303030",
+              error: "#ffb4ab",
+              "surface-tint": "#53e076",
+              "on-primary-container": "#004118",
+              "on-surface": "#e5e2e1",
+              "tertiary-container": "#a2a1a1",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              base: "8px",
+              "container-margin": "24px",
+              md: "16px",
+              sm: "8px",
+              xs: "4px",
+              lg: "24px",
+              xl: "32px",
+              gutter: "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-xl": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-md": ["20px", { lineHeight: "1.4", fontWeight: "700" }],
+              "headline-xl": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.04em",
+                  fontWeight: "800",
+                },
+              ],
+              "headline-lg-mobile": [
+                "24px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-sm": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-background text-on-background font-body-lg overflow-hidden" data-page="Listening History">
+    <!-- Top Navigation Bar -->
+    <header
+      class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] z-40 border-b border-white/5 glass-header flex justify-between items-center h-16 px-lg md:px-xl"
+    >
+      <div class="flex items-center gap-md w-1/2 search-container">
+        <div class="relative w-full max-w-md">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]"
+            data-icon="search"
+            >search</span
+          >
+          <input
+            class="w-full bg-surface-container-high border-none rounded-full py-2 pl-10 pr-4 text-body-sm focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50"
+            placeholder="Search history..."
+            type="text"
+          />
+        </div>
+      </div>
+      <div class="flex items-center gap-lg">
+        <button
+          class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest/50 p-2 rounded-full transition-all"
+          data-icon="notifications"
+        >
+          notifications
+        </button>
+        <button
+          class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest/50 p-2 rounded-full transition-all"
+          data-icon="settings"
+        >
+          settings
+        </button>
+        <img
+          alt="User profile picture"
+          class="w-8 h-8 rounded-full border border-outline-variant"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLtQaZAJCiaT8o9L72FBQgzuyzUVlYJ1iud010SpyotCyZdOM4nievjaGWiICmRm_6bMnbwX0nWs-tUC_f7JpFXLDXYBfOYbU2l5cKZw6iEH12MCE6G-5yI68jXk43A0pJJ-ivyc-lTaZ1KOkbfczojuZrFNs22nnItSJOkNwJf3KWLUWdTKd0BsN8sfOj0Je1kCfcgvNjA5EOOnCL2FVZXcrIenh218L5iDCroHzL-oDy6O4kSq5RGjjHGDrZUE1Oe7S5-Ewk50eO"
+        />
+      </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="md:left-[240px]">
+        <!-- Hero Profile Section -->
+        <section
+          class="relative mb-xl rounded-2xl overflow-hidden bg-surface-container-low border border-outline-variant p-lg md:p-xl flex flex-col md:flex-row items-center md:items-end gap-lg hero-section"
+        >
+          <!-- Background Gradient Decoration -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent -z-0"
+          ></div>
+          <div class="relative z-10 shrink-0">
+            <div
+              class="w-48 h-48 md:w-52 md:h-52 rounded-xl overflow-hidden shadow-2xl border-4 border-surface-container relative group"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="A detailed digital illustration of a premium user avatar for a music streaming platform, featuring a stylish, modern character with headphones in a vibrant neon-lit studio setting."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfT2UOtqWsHPukW8cAtxlckJs8PIDBcRh_9JZ7Wou7IXh-1SABEZtM_NkvH08B2obAe4HmfTQmE3zP5c-8MejpB0pwj8eHpb8RilcNLGVnZluhGFqNUomEbmVNkGZz7gUSKi-b1Dy6qrhBlhktOPHSgDuV1fQclP1chXOUyk1UsR-E-q7AbJMGX1bcNjNmsiFQFLH9Vv0WDVLurpS0JLl0mWd969Doo4J0vV4t9To3Dlng9vbLZGmHfYRCZ0mkXoS4hYjpecwGk6gW"
+              />
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <button
+                  class="material-symbols-outlined text-white text-4xl"
+                  data-icon="edit"
+                >
+                  edit
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="relative z-10 flex-grow pb-xs text-center md:text-left">
+            <p
+              class="font-label-md text-label-md text-primary uppercase tracking-[0.2em] mb-xs"
+            >
+              Premium Profile
+            </p>
+            <h1
+              class="font-headline-xl text-headline-xl md:text-[56px] text-white mb-md hero-title"
+            >
+              U78 History
+            </h1>
+            <div
+              class="flex flex-wrap justify-center md:justify-start items-center gap-md hero-stats"
+            >
+              <div
+                class="flex items-center gap-xs px-md py-1.5 bg-surface-container-highest/50 rounded-full border border-white/5"
+              >
+                <span
+                  class="material-symbols-outlined text-primary text-[18px]"
+                  data-icon="bar_chart"
+                  style="font-variation-settings: 'FILL' 1"
+                  >bar_chart</span
+                >
+                <span class="font-label-md text-label-md text-on-surface"
+                  >1,240 Songs</span
+                >
+              </div>
+              <div
+                class="flex items-center gap-xs px-md py-1.5 bg-surface-container-highest/50 rounded-full border border-white/5"
+              >
+                <span
+                  class="material-symbols-outlined text-primary text-[18px]"
+                  data-icon="timer"
+                  style="font-variation-settings: 'FILL' 1"
+                  >timer</span
+                >
+                <span class="font-label-md text-label-md text-on-surface"
+                  >84 hrs</span
+                >
+              </div>
+              <div
+                class="flex items-center gap-xs px-md py-1.5 bg-surface-container-highest/50 rounded-full border border-white/5"
+              >
+                <span
+                  class="material-symbols-outlined text-primary text-[18px]"
+                  data-icon="favorite"
+                  style="font-variation-settings: 'FILL' 1"
+                  >favorite</span
+                >
+                <span class="font-label-md text-label-md text-on-surface"
+                  >Trip Hop</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Table Header (Enhanced Proportions) -->
+        <div
+          class="grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-sm border-b border-outline-variant text-on-surface-variant font-label-md text-label-md sticky top-0 bg-background/90 backdrop-blur z-20"
+        >
+          <div class="text-center">#</div>
+          <div class="">TITLE</div>
+          <div class="">ALBUM</div>
+          <div class="hidden md:block">GENRE</div>
+          <div class="text-right pr-4">PLAYS</div>
+        </div>
+        <!-- List Content (Mock Data) -->
+        <div id="history-list" class="flex flex-col gap-1 mt-md">
+          <!-- Song Item 1 -->
+          <div
+            class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
+          >
+            <div
+              class="text-center text-on-surface-variant font-body-sm group-hover:hidden"
+            >
+              1
+            </div>
+            <div class="hidden group-hover:flex justify-center items-center">
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+            </div>
+            <div class="flex items-center gap-md min-w-0">
+              <div
+                class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0 relative"
+              >
+                <img
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnCRRmgDK9i5OnBJLxetKFiuiG6EYCXW4Gct9UxDvlg42Cu-1PPEBwxvM4WcLbLTpF5Ue8Vcq7JCYtzHkEhuF99C2JjRcfF5q2kBUv21o1UBvDthyu9HMqcsgStA80ps2XYJDkYyS5t6wAmEjNpqxUgwp0t1wjrIZfeGW50gOnHqlz1nQGlVc-_qssu54fbZJrqtVvVd_aCvUhnKdZSE44Qm6rCT1994e6ADc1s66SMaEJZ8peYiBb_zXQOHnV18sLeR-ow07yQYHW"
+                />
+              </div>
+              <div class="overflow-hidden">
+                <div
+                  class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors"
+                >
+                  Feel Good Inc.
+                </div>
+                <div
+                  class="font-body-sm text-body-sm text-on-surface-variant truncate"
+                >
+                  Gorillaz
+                </div>
+              </div>
+            </div>
+            <div class="font-body-sm text-on-surface-variant truncate">
+              Demon Days
+            </div>
+            <div class="hidden md:flex gap-xs overflow-hidden">
+              <span
+                class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap"
+                >Alt Hip Hop</span
+              >
+            </div>
+            <div
+              class="text-right pr-4 font-label-md text-label-md text-primary font-bold"
+            >
+              45
+            </div>
+          </div>
+          <!-- Song Item 2 -->
+          <div
+            class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
+          >
+            <div
+              class="text-center text-on-surface-variant font-body-sm group-hover:hidden"
+            >
+              2
+            </div>
+            <div class="hidden group-hover:flex justify-center items-center">
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+            </div>
+            <div class="flex items-center gap-md min-w-0">
+              <div
+                class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0"
+              >
+                <img
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuALb3UGaSc3evApZc_CRubcuRTiIqs5NHVTVvl65MNf69YPoXYpRzr9KGkrfIeSqt4_V4c5Um60MaAm2OfIOoPhUVgH_ISyGIWBxPUPDS1rXbd2pIg56WJ5cO7B7U0AMxYHjpZLjwokbeTEH0OaDyk8MRWxqk1pSK4V7fVcwqpG96wfzV8ZGJwKTLe9IUQUNIScB1Zk83lZRp_-cD3avpbm098cGPQvKgBhO1L4FFbwFzVt4Bx31Upfh1vHg17DiC4VEqujeb-S_VWs"
+                />
+              </div>
+              <div class="overflow-hidden">
+                <div
+                  class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors"
+                >
+                  Moonlight Echoes
+                </div>
+                <div
+                  class="font-body-sm text-body-sm text-on-surface-variant truncate"
+                >
+                  The Night Terrors
+                </div>
+              </div>
+            </div>
+            <div class="font-body-sm text-on-surface-variant truncate">
+              Sleepless in Berlin
+            </div>
+            <div class="hidden md:flex gap-xs overflow-hidden">
+              <span
+                class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap"
+                >Synthwave</span
+              >
+            </div>
+            <div
+              class="text-right pr-4 font-label-md text-label-md text-primary font-bold"
+            >
+              38
+            </div>
+          </div>
+          <!-- Song Item 3 -->
+          <div
+            class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
+          >
+            <div
+              class="text-center text-on-surface-variant font-body-sm group-hover:hidden"
+            >
+              3
+            </div>
+            <div class="hidden group-hover:flex justify-center items-center">
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+            </div>
+            <div class="flex items-center gap-md min-w-0">
+              <div
+                class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0"
+              >
+                <img
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIA62Fig25Glso3n8nW3kqLh2bJFZTqKQgYEbEiB6mPuyOQqsmmO3upkxrphMgXcIgL4ceDH7dFwjetD9b6kkVcpgPmAwGYuJANx2rcGuoNyBI4A1ZE_KJoZMjJruRc0X_vlJT9Gm9XBEPOJjGwUjheqLh1nervmFBRsG-lleckeiHG6Razw_LtwGLTbXWlBiizsQA9wIDu2nmQf72dvUw8tp2U9X0G34oC8KtSdbV_v9Gz5lr1p26p581q3W2m6j7jFm6dOkkZM_r"
+                />
+              </div>
+              <div class="overflow-hidden">
+                <div
+                  class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors"
+                >
+                  Deep State
+                </div>
+                <div
+                  class="font-body-sm text-body-sm text-on-surface-variant truncate"
+                >
+                  Massive Attack
+                </div>
+              </div>
+            </div>
+            <div class="font-body-sm text-on-surface-variant truncate">
+              Mezzanine
+            </div>
+            <div class="hidden md:flex gap-xs overflow-hidden">
+              <span
+                class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap"
+                >Trip Hop</span
+              >
+            </div>
+            <div
+              class="text-right pr-4 font-label-md text-label-md text-primary font-bold"
+            >
+              32
+            </div>
+          </div>
+          <!-- Song Item 4 -->
+          <div
+            class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
+          >
+            <div
+              class="text-center text-on-surface-variant font-body-sm group-hover:hidden"
+            >
+              4
+            </div>
+            <div class="hidden group-hover:flex justify-center items-center">
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+            </div>
+            <div class="flex items-center gap-md min-w-0">
+              <div
+                class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0"
+              >
+                <img
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuABv8nvt-2DT79vvCu00QtKYpbdoA29yyKrKJ08RxjyCAEryYpDUTHCDc82og4vrCEp5e5GCBu9fgqt5-9ryZ815LU0HSSsCivr_ABpHNS7_L8To2UyIraPrg2nqH7XCS_9Fd8P3-4yDm8UUHmadWtFsE9w-tRDoOpsLt6GzLSDwXYwHii5E_KDnlDfkDTL-g34YQ7QUV76XEExq1rVstRjoeltsNVHZz5Oqbq5j0VoZ4T7fxT5HQedEX6V4mVwK5c2QCfqkqJ6TFy3"
+                />
+              </div>
+              <div class="overflow-hidden">
+                <div
+                  class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors"
+                >
+                  Lost Bliss
+                </div>
+                <div
+                  class="font-body-sm text-body-sm text-on-surface-variant truncate"
+                >
+                  Bonobo
+                </div>
+              </div>
+            </div>
+            <div class="font-body-sm text-on-surface-variant truncate">
+              The North Borders
+            </div>
+            <div class="hidden md:flex gap-xs overflow-hidden">
+              <span
+                class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap"
+                >Electronic</span
+              >
+            </div>
+            <div
+              class="text-right pr-4 font-label-md text-label-md text-primary font-bold"
+            >
+              29
+            </div>
+          </div>
+          <!-- Song Item 5 -->
+          <div
+            class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
+          >
+            <div
+              class="text-center text-on-surface-variant font-body-sm group-hover:hidden"
+            >
+              5
+            </div>
+            <div class="hidden group-hover:flex justify-center items-center">
+              <span
+                class="material-symbols-outlined text-primary"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+            </div>
+            <div class="flex items-center gap-md min-w-0">
+              <div
+                class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0"
+              >
+                <img
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyt69Tsd91gK0gza-XVnUi7KM339xT_K02INAyCOE-dVc_EHZUvL8WFebrsjahaZNiE3Q9bjitSaB5zvz6Wn8wf59pcrMNM5rOQWnmE1zpWdEWfBqgw_Db5yGikK_4kHwow9c_LMDude3lxn-ee1x5OZRLwqvSeMKlBwPqPb_dhx_5XWvSP7j6RYwjT5yTBt2Z1LncW4PVkDmJYrtmoG21xYdtiUXadhOd4PDGy2QGP8Vd8eSch8shUL7O_jlpJvOz-ZMCjuWkC2nF"
+                />
+              </div>
+              <div class="overflow-hidden">
+                <div
+                  class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors"
+                >
+                  The Clock
+                </div>
+                <div
+                  class="font-body-sm text-body-sm text-on-surface-variant truncate"
+                >
+                  Thom Yorke
+                </div>
+              </div>
+            </div>
+            <div class="font-body-sm text-on-surface-variant truncate">
+              The Eraser
+            </div>
+            <div class="hidden md:flex gap-xs overflow-hidden">
+              <span
+                class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap"
+                >Experimental</span
+              >
+            </div>
+            <div
+              class="text-right pr-4 font-label-md text-label-md text-primary font-bold"
+            >
+              24
+            </div>
+          </div>
+        </div>
+        <!-- Recommendation CTA Section (Bento Style) -->
+        <section class="mt-xl grid grid-cols-1 md:grid-cols-3 gap-lg">
+          <div
+            class="md:col-span-2 p-lg bg-surface-container-high rounded-2xl border border-outline-variant flex flex-col justify-between hover:border-primary/50 transition-colors"
+          >
+            <div>
+              <div class="flex items-center gap-2 mb-sm">
+                <span
+                  class="material-symbols-outlined text-primary"
+                  data-icon="neurology"
+                  >neurology</span
+                >
+                <h3 class="font-headline-md text-headline-md text-white">
+                  AI Analysis
+                </h3>
+              </div>
+              <p class="font-body-sm text-on-surface-variant max-w-lg">
+                Based on your history of 1,240 songs, we've identified a strong
+                affinity for complex rhythmic structures and dark melodic
+                textures found in the 90s Bristol scene.
+              </p>
+            </div>
+            <div class="mt-xl">
+              <div class="flex justify-between items-end mb-sm">
+                <span class="font-label-md text-label-md text-primary"
+                  >Discovery Accuracy</span
+                >
+                <span class="font-label-md text-label-md text-white">94%</span>
+              </div>
+              <div
+                class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_12px_rgba(83,224,118,0.4)]"
+                  style="width: 94%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-primary p-lg rounded-2xl flex flex-col justify-between items-start transition-all hover:translate-y-[-4px] hover:shadow-2xl hover:shadow-primary/20 cursor-pointer group"
+          >
+            <div class="bg-white/20 p-3 rounded-xl">
+              <span
+                class="material-symbols-outlined text-on-primary-container text-[40px]"
+                data-icon="auto_awesome"
+                style="font-variation-settings: 'FILL' 1"
+                >auto_awesome</span
+              >
+            </div>
+            <div>
+              <h3
+                class="font-headline-md text-headline-md text-on-primary-container leading-tight mb-1"
+              >
+                Generate Mix
+              </h3>
+              <p
+                class="font-label-md text-label-md text-on-primary-container/70 group-hover:text-on-primary-container transition-colors"
+              >
+                Personalized for U78
+              </p>
+            </div>
+          </div>
+        </section>
+    </main>
+    <!-- Bottom Player Bar (Fixed Bottom) -->
+    <!-- Bottom Player Bar (BottomNavBar) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full h-[90px] bg-surface-container-low/90 backdrop-blur-2xl border-t border-white/5 z-[100] flex items-center justify-between px-xl shadow-xl"
+    >
+      <!-- Currently Playing -->
+      <div class="flex items-center gap-md min-w-[280px]">
+        <div
+          class="w-14 h-14 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-highest"
+        >
+          <img
+            alt="Album Art"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDx-eQzwuO37IJirT-vNY5R5v69APFJvZ4t9KedMN2P6Tghn1jRdv_nzVynOqnxElcg0BxCIOCe2ZPidtPMmagDLjWfNsKn9qWRLWc10_Jy6qpGPOMxyidM-a6sdAbW63vEwFzM9nMRMnVRvp8-hpm-bEUWdyZ8FkKKlIXmk-QxAAk-Hdvy7QEBQsaTdK9N0MxgBRVwE5RRx8G_odFiCJOv2P9rAewxCPl_y9d_ra2p1ve8hXJsI8gqKmCzzVq2A5mbcQ0Yb0aEy9r"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="font-body-sm text-body-sm font-bold text-on-surface truncate max-w-[180px]"
+            >Where Is My Mind?</span
+          >
+          <span class="font-label-md text-label-md text-on-surface-variant"
+            >Pixies</span
+          >
+        </div>
+        <button
+          class="text-on-surface-variant hover:text-primary transition-colors ml-sm"
+        >
+          <span class="material-symbols-outlined" data-icon="favorite"
+            >favorite</span
+          >
+        </button>
+      </div>
+      <!-- Controls -->
+      <div class="flex flex-col items-center gap-xs flex-1 max-w-2xl">
+        <div class="flex items-center gap-lg">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="shuffle"
+              >shuffle</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_previous"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_previous</span
+            >
+          </button>
+          <button
+            class="w-10 h-10 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="play_arrow"
+              style="font-variation-settings: 'FILL' 1"
+              >play_arrow</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_next"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_next</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="repeat"
+              >repeat</span
+            >
+          </button>
+        </div>
+        <div class="w-full flex items-center gap-sm">
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >1:24</span
+          >
+          <div
+            class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-primary group-hover:bg-primary-fixed transition-colors"
+              style="width: 45%"
+            ></div>
+          </div>
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >3:49</span
+          >
+        </div>
+      </div>
+      <!-- Extra Actions -->
+      <div class="flex items-center justify-end gap-md min-w-[280px]">
+        <button
+          class="text-primary hover:text-primary-fixed transition-colors flex flex-col items-center gap-1"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_circle"
+            style="font-variation-settings: 'FILL' 1"
+            >play_circle</span
+          >
+          <span class="font-label-md text-label-md">Play</span>
+        </button>
+        <button
+          class="text-on-surface-variant hover:text-on-surface transition-colors flex flex-col items-center gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="queue_music"
+            >queue_music</span
+          >
+          <span class="font-label-md text-label-md">Queue</span>
+        </button>
+        <div class="flex items-center gap-sm">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="volume_up"
+              >volume_up</span
+            >
+          </button>
+          <div
+            class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-on-surface-variant group-hover:bg-primary transition-colors"
+              style="width: 70%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = window.__USER_ID || "U78";
+
+      async function loadHistory() {
+        try {
+          const res = await fetch(API + "/history/" + encodeURIComponent(USER_ID), { method: "GET" });
+          const songs = await res.json();
+          const container = document.querySelector("#history-list");
+          if (!container || !songs.length) return;
+          container.innerHTML = "";
+
+          document.querySelector(".hero-title") && (document.querySelector(".hero-title").textContent = USER_ID + " History");
+
+          let totalPlays = 0;
+          songs.forEach((song, i) => {
+            totalPlays += song.playcount || 0;
+            const imgUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuDnCRRmgDK9i5OnBJLxetKFiuiG6EYCXW4Gct9UxDvlg42Cu-1PPEBwxvM4WcLbLTpF5Ue8Vcq7JCYtzHkEhuF99C2JjRcfF5q2kBUv21o1UBvDthyu9HMqcsgStA80ps2XYJDkYyS5t6wAmEjNpqxUgwp0t1wjrIZfeGW50gOnHqlz1nQGlVc-_qssu54fbZJrqtVvVd_aCvUhnKdZSE44Qm6rCT1994e6ADc1s66SMaEJZ8peYiBb_zXQOHnV18sLeR-ow07yQYHW";
+            container.innerHTML += `
+              <div class="song-row group grid grid-cols-[48px_minmax(200px,2fr)_minmax(150px,1.2fr)_minmax(120px,1fr)_100px] gap-gutter px-md py-3 items-center rounded-xl hover:bg-surface-container-high transition-all cursor-pointer">
+                <div class="text-center text-on-surface-variant font-body-sm group-hover:hidden">${i + 1}</div>
+                <div class="hidden group-hover:flex justify-center items-center">
+                  <span class="material-symbols-outlined text-primary" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1" onclick="playHistoryTrack('${song.track_id || ''}')">play_arrow</span>
+                </div>
+                <div class="flex items-center gap-md min-w-0">
+                  <div class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden shrink-0">
+                    <img class="w-full h-full object-cover" src="${imgUrl}" />
+                  </div>
+                  <div class="overflow-hidden">
+                    <div class="font-headline-md text-[15px] text-white truncate group-hover:text-primary transition-colors">${song.song_name || 'Unknown'}</div>
+                    <div class="font-body-sm text-body-sm text-on-surface-variant truncate">${song.artist || 'Unknown'}</div>
+                  </div>
+                </div>
+                <div class="font-body-sm text-on-surface-variant truncate">-</div>
+                <div class="hidden md:flex gap-xs overflow-hidden">
+                  <span class="px-2.5 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant border border-outline-variant uppercase whitespace-nowrap">Track</span>
+                </div>
+                <div class="text-right pr-4 font-label-md text-label-md text-primary font-bold">${song.playcount || 0}</div>
+              </div>
+            `;
+          });
+
+          const statSongs = document.querySelector('.hero-stats .font-label-md.text-on-surface');
+          const statHrs = document.querySelectorAll('.hero-stats .font-label-md.text-on-surface');
+          if (statSongs) statSongs.textContent = songs.length + " Songs";
+          if (statHrs && statHrs[1]) statHrs[1].textContent = Math.round(totalPlays * 3.5 / 60) + " hrs";
+        } catch (e) {
+          console.warn("Failed to load history:", e);
+        }
+      }
+
+      async function playHistoryTrack(trackId) {
+        if (!trackId || !USER_ID) return;
+        try {
+          await fetch(API + "/play", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: USER_ID, track_id: trackId }),
+          });
+        } catch (e) {
+          console.warn("Failed to record play:", e);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadHistory);
+
+      // Fix parent page scrolling to keep sidebar fixed
+      try {
+        const parentDoc = window.parent.document;
+        const parentApp = parentDoc.querySelector('.stApp');
+        if (parentApp) parentApp.style.overflow = 'hidden';
+        const frame = window.frameElement;
+        if (frame) {
+          frame.style.height = '100vh';
+          frame.style.width = '100%';
+          frame.style.border = 'none';
+        }
+      } catch (e) {
+        console.warn("Parent container styling failed:", e);
+      }
+
+      // Simple micro-interactions for demo
+      document.querySelectorAll(".song-row").forEach((row) => {
+        row.addEventListener("click", () => {
+          const title = row.querySelector(".font-headline-md").textContent;
+          const artist = row.querySelector(".font-body-sm").textContent;
+          const imgSrc = row.querySelector("img").src;
+
+          // Update player bar
+          const playerTitle = document.querySelector(
+            "footer .font-headline-md"
+          );
+          const playerArtist = document.querySelector("footer .font-body-sm");
+          const playerImg = document.querySelector("footer img");
+
+          playerTitle.textContent = title;
+          playerArtist.textContent = artist;
+          playerImg.src = imgSrc;
+
+          // Simple active state
+          document
+            .querySelectorAll(".song-row")
+            .forEach((r) =>
+              r.classList.remove(
+                "bg-surface-container-high",
+                "border-l-4",
+                "border-primary"
+              )
+            );
+          row.classList.add("bg-surface-container-high");
+        });
+      });
+    </script>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

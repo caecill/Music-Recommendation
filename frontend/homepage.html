@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Music Recommendation | Premium Curator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474746",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "primary-fixed": "#72fe8f",
+              tertiary: "#c8c6c6",
+              "inverse-surface": "#e5e2e1",
+              primary: "#53e076",
+              "surface-bright": "#393939",
+              "on-tertiary-fixed-variant": "#474747",
+              "inverse-on-surface": "#313030",
+              "on-primary-fixed": "#002108",
+              "on-tertiary-fixed": "#1b1c1c",
+              "primary-fixed-dim": "#53e076",
+              "primary-container": "#1db954",
+              "on-tertiary": "#303030",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed": "#e4e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-container": "#383838",
+              "on-secondary-fixed-variant": "#474746",
+              "outline-variant": "#3d4a3d",
+              background: "#131313",
+              "surface-container-highest": "#353534",
+              secondary: "#c8c6c5",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#005320",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-surface-variant": "#bccbb9",
+              "on-error": "#690005",
+              "surface-container-high": "#2a2a2a",
+              "surface-variant": "#353534",
+              "on-primary": "#003914",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#c8c6c5",
+              "surface-container-low": "#1c1b1b",
+              outline: "#869585",
+              surface: "#131313",
+              "inverse-primary": "#006e2d",
+              "surface-container": "#201f1f",
+              "on-background": "#e5e2e1",
+              "on-secondary": "#303030",
+              error: "#ffb4ab",
+              "surface-tint": "#53e076",
+              "on-primary-container": "#004118",
+              "on-surface": "#e5e2e1",
+              "tertiary-container": "#a2a1a1",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              base: "8px",
+              "container-margin": "24px",
+              md: "16px",
+              sm: "8px",
+              xs: "4px",
+              lg: "24px",
+              xl: "32px",
+              gutter: "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-xl": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-md": ["20px", { lineHeight: "1.4", fontWeight: "700" }],
+              "headline-xl": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.04em",
+                  fontWeight: "800",
+                },
+              ],
+              "headline-lg-mobile": [
+                "24px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-sm": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      main {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 90px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 24px;
+        /* ✅ Sekarang padding included dalam height calculation */
+      }
+
+      /* ✅ Hide native scrollbar di semua browser */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #282828;
+        border-radius: 10px;
+      }
+      .glass-header {
+        background: rgba(18, 18, 18, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .recommendation-card:hover .play-overlay {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .sidebar-active-indicator {
+        box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #282828;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #3d3d3d;
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #282828 transparent;
+      }
+      @media (max-width: 767px) {
+        .hero-title {
+          font-size: 28px !important;
+          line-height: 1.2 !important;
+        }
+        .hero-subtitle {
+          font-size: 14px !important;
+        }
+        .section-title {
+          font-size: 22px !important;
+        }
+        main {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        header {
+          width: 100% !important;
+          padding-left: 56px !important;
+          padding-right: 12px !important;
+        }
+        header .search-container {
+          display: none !important;
+        }
+        /* Simplified player on mobile */
+        footer .player-extra {
+          display: none !important;
+        }
+        footer .player-controls-main {
+          display: none !important;
+        }
+        footer .player-progress {
+          display: none !important;
+        }
+        footer {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+          height: 64px !important;
+        }
+        footer .player-now-playing {
+          min-width: 0 !important;
+          flex: 1 !important;
+        }
+        footer .player-now-playing img {
+          width: 40px !important;
+          height: 40px !important;
+        }
+        footer .player-now-playing .truncate-title {
+          max-width: 120px !important;
+        }
+        footer .player-mobile-controls {
+          display: flex !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .hero-title {
+          font-size: 24px !important;
+        }
+        .hero-subtitle {
+          font-size: 13px !important;
+        }
+        .section-title {
+          font-size: 18px !important;
+        }
+        main {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+        footer .player-now-playing .truncate-title {
+          max-width: 100px !important;
+        }
+        .genre-pill {
+          font-size: 11px !important;
+          padding: 4px 12px !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-background overflow-hidden" data-page="Home">
+    <!-- TopNavBar -->
+    <header
+      class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-16 glass-header border-b border-white/10 z-50 flex justify-between items-center px-lg"
+    >
+      <div class="flex items-center gap-md flex-1 max-w-xl search-container">
+        <div class="relative w-full">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+            data-icon="search"
+            >search</span
+          >
+          <input
+            class="w-full bg-surface-container-high border-none rounded-xl py-2 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-1 focus:ring-primary font-body-sm"
+            placeholder="Search by User ID or Song Name"
+            type="text"
+          />
+        </div>
+      </div>
+      <div class="flex items-center gap-lg ml-md">
+        <button
+          class="text-on-surface-variant hover:bg-surface-container-highest/50 p-2 rounded-full transition-all flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined" data-icon="notifications"
+            >notifications</span
+          >
+        </button>
+        <button
+          class="text-on-surface-variant hover:bg-surface-container-highest/50 p-2 rounded-full transition-all flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined" data-icon="settings"
+            >settings</span
+          >
+        </button>
+        <div
+          class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer"
+        >
+          <img
+            alt="User Profile"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDumw6euV8-loiu2_XtSEFsfU7jC06mu2VLVimqeCNCSTIX6DrtP30vjMBrXsVNjbE4FFNNiyfxbXxwgtH5ZvqVpOadCV5AivdaPdM4xMczJ18romaQfYhQeWltoXjUuQ3qMi8T6sGIYM6wNcp6JT0W4rIOwNKh6fgSqWQ_fWlbz9m9qu6p7T_mLp-PlS7u0rKK3yMfXaWPvkPzxk59uJcfU_NV2p8YxyaLDGl6rXlFJh6L_0tvMljLDLCMZcUt0x4mLO5u6P81g33C"
+          />
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="md:left-[240px]">
+      <!-- Hero Section -->
+      <section
+        class="mb-xl relative overflow-hidden rounded-xl p-xl bg-surface-container border border-white/5"
+      >
+        <div
+          class="absolute top-0 right-0 w-1/2 h-full opacity-30 pointer-events-none"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-l from-primary/20 to-transparent"
+          ></div>
+        </div>
+        <div class="relative z-10">
+          <span
+            class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-label-md border border-primary/20 mb-md inline-block"
+            >Curated for You</span
+          >
+          <h2
+            class="font-headline-xl text-headline-xl text-on-surface max-w-2xl"
+          >
+            Discover your next favorite sound.
+          </h2>
+          <p
+            class="font-body-lg text-body-lg text-on-surface-variant mt-sm max-w-xl"
+          >
+            Our neural algorithm analyzed your recent listening habits to find
+            hidden gems you'll love.
+          </p>
+          <div class="flex gap-md mt-lg">
+            <button
+              class="px-xl py-3 bg-primary text-background font-bold rounded-full transition-transform hover:scale-105 active:scale-95 flex items-center gap-sm"
+            >
+              <span
+                class="material-symbols-outlined"
+                data-icon="play_arrow"
+                style="font-variation-settings: 'FILL' 1"
+                >play_arrow</span
+              >
+              Quick Mix
+            </button>
+            <button
+              class="px-xl py-3 border border-outline-variant text-on-surface font-bold rounded-full transition-all hover:bg-white/5 active:scale-95"
+            >
+              View Analytics
+            </button>
+          </div>
+        </div>
+      </section>
+      <!-- Top Recommended Songs Section -->
+      <section>
+        <div class="flex justify-between items-end mb-lg">
+          <div>
+            <h3 class="font-headline-lg text-headline-lg text-on-surface">
+              Top Recommended Songs
+            </h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Ranked based on your sonic profile and genre affinity.
+            </p>
+          </div>
+          <button
+            class="text-primary font-label-md text-label-md hover:underline"
+          >
+            View All Recommendations
+          </button>
+        </div>
+        <!-- Bento/Grid Layout for Cards -->
+        <div id="recommendation-grid">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-md"
+        >
+          <!-- Recommendation Card 1 -->
+          <div
+            class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative"
+          >
+            <div
+              class="relative aspect-square mb-md overflow-hidden rounded-lg"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="Close-up artistic photography of a vintage vinyl record spinning on a turntable, with moody emerald green neon lighting reflecting off the grooves. The atmosphere is cinematic and high-fidelity, emphasizing deep shadows and vibrant primary green highlights in a minimalist dark-mode studio setting."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxxlCoAocFGbt3X15tcDzewdtlrDz0z-XCJnVQtxsnm1MhMjV5ZXLIiHkB4WixN1X_VvsZzkPxcX-DHp7DlnFhMpRF_6AxDIyQ56bfKi9uhGuwYX8b1d-UnR4VLEUUycLCqpgvV-NBz4h0ObEgPRd92C7eMZ-GJtbKTZKYGl90V4x5GZwUCDVRqxi42ZthdDGVzZ0cZKBtcifY_BqubR93G8dyWEF-GhnOwmErgnpQ-wAo3T5i66JIsB3CwDaQ7_-rb11RQ19mSpvy"
+              />
+              <div
+                class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+              >
+                <button
+                  class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    data-icon="play_arrow"
+                    style="font-variation-settings: 'FILL' 1"
+                    >play_arrow</span
+                  >
+                </button>
+              </div>
+              <!-- Match Badge -->
+              <div
+                class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40"
+              >
+                <span class="text-primary font-label-md text-[10px]"
+                  >98% Match</span
+                >
+              </div>
+            </div>
+            <div class="space-y-xs">
+              <h4
+                class="font-headline-md text-headline-md text-on-surface truncate"
+              >
+                Where Is My Mind?
+              </h4>
+              <p
+                class="font-body-sm text-body-sm text-on-surface-variant truncate"
+              >
+                Pixies
+              </p>
+            </div>
+            <div class="mt-md">
+              <div
+                class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_8px_#1db954]"
+                  style="width: 98%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <!-- Recommendation Card 2 -->
+          <div
+            class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative"
+          >
+            <div
+              class="relative aspect-square mb-md overflow-hidden rounded-lg"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="Abstract digital art featuring liquid waves of neon green and charcoal grey swirling together in a dark void. The lighting is soft and atmospheric, creating a sense of deep immersion and sleek intelligence. High-contrast colors pop against a deep black background in a modern minimalist style."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyOQ_1AedQrjmNS_93BLkyB9JpPdOnyifXLXsV-NL2OCsC-DQL74_LLne8Cj73LYQJZDtL-K3xhieQMkfS1XFzwQYNBohB3iK0WVL5PYbpUjwJgi_NXCKjKsRzDqGzIeETfXAyzNXvWJZnko3bPfF8n2lYfle_p4VYjvoIe6ciVFALzpIfCFr03ja_zGr0kvcPZrfwaIM0_OuyXkpAhhBuk-tX4S_4qlxdEULw4FJ809bGa7B_YtVZ7Se8Yl1CYZdJBw9-Of2UBY57"
+              />
+              <div
+                class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+              >
+                <button
+                  class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    data-icon="play_arrow"
+                    style="font-variation-settings: 'FILL' 1"
+                    >play_arrow</span
+                  >
+                </button>
+              </div>
+              <div
+                class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40"
+              >
+                <span class="text-primary font-label-md text-[10px]"
+                  >95% Match</span
+                >
+              </div>
+            </div>
+            <div class="space-y-xs">
+              <h4
+                class="font-headline-md text-headline-md text-on-surface truncate"
+              >
+                Starless Night
+              </h4>
+              <p
+                class="font-body-sm text-body-sm text-on-surface-variant truncate"
+              >
+                The Nocturnes
+              </p>
+            </div>
+            <div class="mt-md">
+              <div
+                class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_8px_#1db954]"
+                  style="width: 95%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <!-- Recommendation Card 3 -->
+          <div
+            class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative"
+          >
+            <div
+              class="relative aspect-square mb-md overflow-hidden rounded-lg"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="A stylized concert scene with a silhouette of a DJ in front of a massive wall of speaker stacks. The lighting is a sharp, vibrant green laser grid cutting through a dense smoky atmosphere. The aesthetic is high-energy, futuristic, and dark, with glass-like surfaces reflecting the intense primary green light."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQevAN1ovMH3qDu8i6MUijdLWagc62l9qtjBqMLJgcrx-MNdzKD0iUfQ_tCdYNszFsdTAtVcScZcqn4D8_yLWCGIkjGvQTbxqfzwYBr2nQpjf3C-8JVs_X--eMixmaVL9OFrqLcuRDIPFuTg_ME4GrCknD0GmXsVCnfOwJSDolD9sTTXtOcjL_HoJ-3DMCpYvXez9AgYCexEcBnzFNEET30HSNUiffJYTIZeDNPn8HqnxgE1XAcF7SYvLK9YRY_i1w29P7ByEIx-DK"
+              />
+              <div
+                class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+              >
+                <button
+                  class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    data-icon="play_arrow"
+                    style="font-variation-settings: 'FILL' 1"
+                    >play_arrow</span
+                  >
+                </button>
+              </div>
+              <div
+                class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40"
+              >
+                <span class="text-primary font-label-md text-[10px]"
+                  >92% Match</span
+                >
+              </div>
+            </div>
+            <div class="space-y-xs">
+              <h4
+                class="font-headline-md text-headline-md text-on-surface truncate"
+              >
+                Cyber Bass
+              </h4>
+              <p
+                class="font-body-sm text-body-sm text-on-surface-variant truncate"
+              >
+                Data Pulse
+              </p>
+            </div>
+            <div class="mt-md">
+              <div
+                class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_8px_#1db954]"
+                  style="width: 92%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <!-- Recommendation Card 4 -->
+          <div
+            class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative"
+          >
+            <div
+              class="relative aspect-square mb-md overflow-hidden rounded-lg"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="Top-down view of a sophisticated digital music controller with glowing capacitive touch buttons in electric green. The hardware has a sleek, matte black finish with glass-like textures. Soft ambient lighting creates a focused, technological mood suitable for a premium music recommendation platform UI."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSf8tPBr_6AZFrvAg38rM_Tr9qvB3DkJMVzjSqmglN94whsgXyS7jr9H_XF2RrfdJhQ3NJuNbZUhlM7rB6Qey-snQDBXPBl59Axy_vU183grusxXzXVRjuwjrnIoKBKQ1VSlmS_VjBlsyNq-fTCPRsQUiXVfPcC9e429-t6D5NtcWjUc4roy4AjvXSQ0t3NXwBCeic_ke0t0a49rvmthV22lwQ4ZoF5fYVPIB5HjIA0OlhY740FhAyUh6vfVzkNetU-azkJynemNVQ"
+              />
+              <div
+                class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+              >
+                <button
+                  class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    data-icon="play_arrow"
+                    style="font-variation-settings: 'FILL' 1"
+                    >play_arrow</span
+                  >
+                </button>
+              </div>
+              <div
+                class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40"
+              >
+                <span class="text-primary font-label-md text-[10px]"
+                  >89% Match</span
+                >
+              </div>
+            </div>
+            <div class="space-y-xs">
+              <h4
+                class="font-headline-md text-headline-md text-on-surface truncate"
+              >
+                Synthesized
+              </h4>
+              <p
+                class="font-body-sm text-body-sm text-on-surface-variant truncate"
+              >
+                Neon Architect
+              </p>
+            </div>
+            <div class="mt-md">
+              <div
+                class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_8px_#1db954]"
+                  style="width: 89%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <!-- Recommendation Card 5 -->
+          <div
+            class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative"
+          >
+            <div
+              class="relative aspect-square mb-md overflow-hidden rounded-lg"
+            >
+              <img
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                data-alt="A minimalist studio microphone silhouetted against a softly glowing green background wall. The lighting is diffused and professional, creating an intimate but high-tech atmosphere. The scene relies on deep charcoal tones and a signature vibrant green accent to evoke a sense of deep immersion and sleek curation."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXxe5kiveROFs4HtSm0VBGcP8eXiKrvTooR8l2gnFo0Z4XuoHB4zjRme7Ixtif1ixhLfZvgCxcfYDFT1k-ytGDqegCZDaSF8BDgP4QaVz5-DIto9-JHaUvFQJknSveSqdCPnhK7w-SgRAo2zvTyPUVHuQpciaGmuYLA8G4NkGOsIg2yUVtgXZk7DGiD9c-GCtp5rMZOo86vH9QENEDFzKB6EdERoTxi7JwQTJOKXtb4Y_5fXOBiKTZ14AQwn9YY2lmZft6HZPyYGPb"
+              />
+              <div
+                class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+              >
+                <button
+                  class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    data-icon="play_arrow"
+                    style="font-variation-settings: 'FILL' 1"
+                    >play_arrow</span
+                  >
+                </button>
+              </div>
+              <div
+                class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40"
+              >
+                <span class="text-primary font-label-md text-[10px]"
+                  >87% Match</span
+                >
+              </div>
+            </div>
+            <div class="space-y-xs">
+              <h4
+                class="font-headline-md text-headline-md text-on-surface truncate"
+              >
+                Lost in Reverie
+              </h4>
+              <p
+                class="font-body-sm text-body-sm text-on-surface-variant truncate"
+              >
+                Ethereal Vox
+              </p>
+            </div>
+            <div class="mt-md">
+              <div
+                class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary shadow-[0_0_8px_#1db954]"
+                  style="width: 87%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+      <!-- Secondary Genre Section -->
+      <section class="mt-xl">
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-md">
+          Explore by Genre
+        </h3>
+        <div class="flex flex-wrap gap-sm">
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Indie Rock
+          </button>
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Synthwave
+          </button>
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Ambient Jazz
+          </button>
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Techno
+          </button>
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Neo-Soul
+          </button>
+          <button
+            class="px-lg py-2 bg-surface-container-high border border-outline-variant text-on-surface rounded-full font-label-md hover:bg-primary hover:text-background hover:border-primary transition-all"
+          >
+            Post-Punk
+          </button>
+        </div>
+      </section>
+    </main>
+    <!-- Bottom Player Bar (BottomNavBar) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full h-[90px] bg-surface-container-low/90 backdrop-blur-2xl border-t border-white/5 z-[100] flex items-center justify-between px-xl shadow-xl"
+    >
+      <!-- Currently Playing -->
+      <div class="flex items-center gap-md min-w-[280px] player-now-playing">
+        <div
+          class="w-14 h-14 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-highest"
+        >
+          <img
+            alt="Album Art"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDx-eQzwuO37IJirT-vNY5R5v69APFJvZ4t9KedMN2P6Tghn1jRdv_nzVynOqnxElcg0BxCIOCe2ZPidtPMmagDLjWfNsKn9qWRLWc10_Jy6qpGPOMxyidM-a6sdAbW63vEwFzM9nMRMnVRvp8-hpm-bEUWdyZ8FkKKlIXmk-QxAAk-Hdvy7QEBQsaTdK9N0MxgBRVwE5RRx8G_odFiCJOv2P9rAewxCPl_y9d_ra2p1ve8hXJsI8gqKmCzzVq2A5mbcQ0Yb0aEy9r"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="font-body-sm text-body-sm font-bold text-on-surface truncate max-w-[180px]"
+            >Where Is My Mind?</span
+          >
+          <span class="font-label-md text-label-md text-on-surface-variant"
+            >Pixies</span
+          >
+        </div>
+        <button
+          class="text-on-surface-variant hover:text-primary transition-colors ml-sm"
+        >
+          <span class="material-symbols-outlined" data-icon="favorite"
+            >favorite</span
+          >
+        </button>
+      </div>
+      <!-- Mobile Play Button -->
+      <div class="player-mobile-controls hidden items-center justify-center">
+        <button
+          class="w-11 h-11 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95 shadow-lg"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_arrow"
+            style="font-variation-settings: 'FILL' 1"
+            >play_arrow</span
+          >
+        </button>
+      </div>
+      <!-- Controls -->
+      <div
+        class="flex flex-col items-center gap-xs flex-1 max-w-2xl player-controls-main"
+      >
+        <div class="flex items-center gap-lg">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="shuffle"
+              >shuffle</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_previous"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_previous</span
+            >
+          </button>
+          <button
+            class="w-10 h-10 bg-on-surface text-background rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="play_arrow"
+              style="font-variation-settings: 'FILL' 1"
+              >play_arrow</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="skip_next"
+              style="font-variation-settings: 'FILL' 1"
+              >skip_next</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="repeat"
+              >repeat</span
+            >
+          </button>
+        </div>
+        <div class="w-full flex items-center gap-sm player-progress">
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >1:24</span
+          >
+          <div
+            class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-primary group-hover:bg-primary-fixed transition-colors"
+              style="width: 45%"
+            ></div>
+          </div>
+          <span
+            class="font-label-md text-label-md text-on-surface-variant min-w-[32px]"
+            >3:49</span
+          >
+        </div>
+      </div>
+      <!-- Extra Actions -->
+      <div
+        class="flex items-center justify-end gap-md min-w-[280px] player-extra"
+      >
+        <button
+          class="text-primary hover:text-primary-fixed transition-colors flex flex-col items-center gap-1"
+        >
+          <span
+            class="material-symbols-outlined"
+            data-icon="play_circle"
+            style="font-variation-settings: 'FILL' 1"
+            >play_circle</span
+          >
+          <span class="font-label-md text-label-md">Play</span>
+        </button>
+        <button
+          class="text-on-surface-variant hover:text-on-surface transition-colors flex flex-col items-center gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="queue_music"
+            >queue_music</span
+          >
+          <span class="font-label-md text-label-md">Queue</span>
+        </button>
+        <div class="flex items-center gap-sm">
+          <button
+            class="text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="volume_up"
+              >volume_up</span
+            >
+          </button>
+          <div
+            class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden cursor-pointer group"
+          >
+            <div
+              class="h-full bg-on-surface-variant group-hover:bg-primary transition-colors"
+              style="width: 70%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = window.__USER_ID || "U001";
+
+      async function loadRecommendations() {
+        try {
+          const res = await fetch(API + "/recommend/" + encodeURIComponent(USER_ID), { method: "GET" });
+          const songs = await res.json();
+          const grid = document.querySelector("#recommendation-grid .grid");
+          if (!grid || !songs.length) return;
+          grid.innerHTML = "";
+          songs.forEach((song, i) => {
+            const matchPct = song.score ? Math.round(song.score * 100) : Math.max(98 - i * 3, 50);
+            const imgUrl = song.spotify_preview_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDxxlCoAocFGbt3X15tcDzewdtlrDz0z-XCJnVQtxsnm1MhMjV5ZXLIiHkB4WixN1X_VvsZzkPxcX-DHp7DlnFhMpRF_6AxDIyQ56bfKi9uhGuwYX8b1d-UnR4VLEUUycLCqpgvV-NBz4h0ObEgPRd92C7eMZ-GJtbKTZKYGl90V4x5GZwUCDVRqxi42ZthdDGVzZ0cZKBtcifY_BqubR93G8dyWEF-GhnOwmErgnpQ-wAo3T5i66JIsB3CwDaQ7_-rb11RQ19mSpvy";
+            grid.innerHTML += `
+              <div class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative" data-track-id="${song.track_id || ''}">
+                <div class="relative aspect-square mb-md overflow-hidden rounded-lg">
+                  <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="${imgUrl}" />
+                  <div class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                    <button class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300" onclick="playTrack('${song.track_id || ''}')">
+                      <span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1">play_arrow</span>
+                    </button>
+                  </div>
+                  <div class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40">
+                    <span class="text-primary font-label-md text-[10px]">${matchPct}% Match</span>
+                  </div>
+                </div>
+                <div class="space-y-xs">
+                  <h4 class="font-headline-md text-headline-md text-on-surface truncate">${song.name || 'Unknown'}</h4>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${song.artist || 'Unknown Artist'}</p>
+                </div>
+                <div class="mt-md">
+                  <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                    <div class="h-full bg-primary shadow-[0_0_8px_#1db954]" style="width: ${matchPct}%"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } catch (e) {
+          console.warn("Failed to load recommendations:", e);
+        }
+      }
+
+      async function playTrack(trackId) {
+        if (!trackId || !USER_ID) return;
+        try {
+          await fetch(API + "/play", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: USER_ID, track_id: trackId }),
+          });
+        } catch (e) {
+          console.warn("Failed to record play:", e);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadRecommendations);
+
+      // Micro-interaction for cards
+      document.querySelectorAll(".recommendation-card").forEach((card) => {
+        card.addEventListener("mousedown", () => {
+          card.style.transform = "scale(0.98)";
+        });
+        card.addEventListener("mouseup", () => {
+          card.style.transform = "scale(1)";
+        });
+        card.addEventListener("mouseleave", () => {
+          card.style.transform = "scale(1)";
+        });
+      });
+
+      // Search bar interaction
+      const searchInputs = document.querySelectorAll('input[type="text"]');
+      searchInputs.forEach(function (input) {
+        input.addEventListener("focus", function () {
+          this.parentElement.classList.add("ring-2", "ring-primary/20");
+        });
+        input.addEventListener("blur", function () {
+          this.parentElement.classList.remove("ring-2", "ring-primary/20");
+        });
+      });
+
+      const main = document.querySelector("main");
+      console.log("Main height:", main.clientHeight);
+      console.log("Main scroll height:", main.scrollHeight);
+      console.log("Overflow?", main.scrollHeight > main.clientHeight);
+
+      document.querySelector("[data-testid='stMain']").scrollHeight;
+      document.querySelector("[data-testid='stMain']").clientHeight;
+
+      document.querySelector("main").scrollHeight;
+      document.querySelector("main").clientHeight;
+    </script>
+    <script src="sidebar.js"></script>
+  </body>
+</html>
