@@ -32,7 +32,7 @@ auth_pages = {
 }
 
 # Baca parameter query string: ?page=...&user_id=...
-current_page = st.query_params.get("page", "Home")
+current_page = st.query_params.get("page", "Login")
 user_id = st.query_params.get("user_id", "")
 
 # ============ HALAMAN AUTH (Login/Register) ============
