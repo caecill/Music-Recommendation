@@ -358,3 +358,24 @@ Contoh:
 - Recommendation → `GET /recommend/{user_id}`
 
 Tidak perlu mengakses Neo4j secara langsung karena seluruh proses sudah ditangani oleh FastAPI.
+
+
+
+## new 
+# 1. Clone
+git clone https://github.com/username/music-recommendation-fe.git
+cd music-recommendation-fe
+
+# 2. Buat virtual env & install (wajib)
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Mac/Linux
+pip install -r requirements.txt
+
+# 3. Buka langsung (2 cara):
+# Cara A — VS Code Live Server
+# Cara B — Python built-in:
+python -m http.server 5500
+
+# 4. Buka di browser:
+# http://127.0.0.1:5500/index.html
