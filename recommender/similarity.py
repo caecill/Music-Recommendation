@@ -44,6 +44,7 @@ def build_user_item_matrix(history_df):
         fill_value=0,
         aggfunc="sum"
     )
+    
 
     return user_item_matrix
 
