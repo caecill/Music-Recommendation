@@ -85,7 +85,11 @@
     '<nav class="flex-1 px-sm mt-md space-y-xs">' +
     navHtml +
     "</nav>" +
-    '<div class="p-lg">' +
+    '<div class="p-lg border-t border-outline-variant pt-lg">' +
+    '<a onclick="logout()" class="flex items-center gap-md px-sm py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-all cursor-pointer mb-md">' +
+    '<span class="material-symbols-outlined">logout</span>' +
+    '<span class="font-label-md text-label-md">Logout</span>' +
+    '</a>' +
     '<button class="w-full py-sm bg-primary-container text-on-primary-container font-bold rounded-full transition-transform active:scale-95">Upgrade to Pro</button>' +
     "</div>";
 
@@ -122,9 +126,9 @@
 
   function getUserId() {
     try {
-      var params = new URLSearchParams(window.parent.location.search);
-      var uid = params.get("user_id");
-      if (uid) return uid;
+      var hash = window.parent.location.hash;
+      var match = hash.match(/user_id=([^&]+)/);
+      if (match) return decodeURIComponent(match[1]);
     } catch (e) {}
     try {
       var params = new URLSearchParams(window.location.search);
@@ -135,16 +139,20 @@
 
   window.navigateTo = function (page) {
     var uid = getUserId();
-    var qs = "?page=" + encodeURIComponent(page);
-    if (uid) qs += "&user_id=" + encodeURIComponent(uid);
     try {
-      var parentDoc = window.parent.document;
-      var script = parentDoc.createElement("script");
-      script.textContent = 'window.location.search = "' + qs + '";';
-      parentDoc.body.appendChild(script);
-      parentDoc.body.removeChild(script);
+      parent.navigate(page, uid ? { user_id: uid } : {});
     } catch (e) {
-      window.location.search = qs;
+      var hash = "#" + encodeURIComponent(page);
+      if (uid) hash += "&user_id=" + encodeURIComponent(uid);
+      window.location.hash = hash;
+    }
+  };
+
+  window.logout = function () {
+    try {
+      window.parent.location.hash = "#Login";
+    } catch (e) {
+      window.location.hash = "#Login";
     }
   };
 })();

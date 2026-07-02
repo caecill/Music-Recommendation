@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Music Recommendation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: #131313; overflow: hidden; }
+    iframe { width: 100%; height: 100%; border: none; display: block; }
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: #53e076; font-family: Inter, sans-serif;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Loading...</div>
+  <iframe id="app" style="display:none"></iframe>
+
+  <script>
+    const API = "http://127.0.0.1:8000";
+    const PAGES = {
+      Login: "login.html",
+      Register: "register.html",
+      Home: "homepage.html",
+      Explore: "explore.html",
+      Catalog: "catalog.html",
+      "Listening History": "listening_history.html",
+      "Graph View": "graph_view.html",
+    };
+
+    const frame = document.getElementById("app");
+    const loading = document.getElementById("loading");
+
+    function navigate(page, params = {}) {
+      const qs = Object.keys(params).length ? "&" + new URLSearchParams(params).toString() : "";
+      location.hash = "#" + encodeURIComponent(page) + qs;
+    }
+
+    function getParamsFromHash() {
+      const hash = location.hash.slice(1) || "Login";
+      const parts = hash.split("&");
+      const page = decodeURIComponent(parts[0]);
+      const params = {};
+      for (let i = 1; i < parts.length; i++) {
+        const idx = parts[i].indexOf("=");
+        if (idx > -1) {
+          params[parts[i].slice(0, idx)] = decodeURIComponent(parts[i].slice(idx + 1));
+        }
+      }
+      return { page, params };
+    }
+
+    function render() {
+      const { page, params } = getParamsFromHash();
+
+      const htmlFile = PAGES[page];
+      if (!htmlFile) {
+        navigate("Login");
+        return;
+      }
+
+      loading.style.display = "flex";
+      frame.style.display = "none";
+
+      const url = new URL(htmlFile, location.href);
+      url.searchParams.set("api", API);
+      url.searchParams.set("page", page);
+      for (const [k, v] of Object.entries(params)) {
+        url.searchParams.set(k, v);
+      }
+      frame.src = url.toString();
+    }
+
+    frame.addEventListener("load", function () {
+      loading.style.display = "none";
+      frame.style.display = "block";
+      document.title = frame.contentDocument?.title || "Music Recommendation";
+    });
+
+    window.addEventListener("hashchange", render);
+    window.navigate = navigate;
+
+    render();
+  </script>
+</body>
+</html>

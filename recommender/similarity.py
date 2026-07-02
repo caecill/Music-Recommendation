@@ -26,6 +26,9 @@ def build_user_item_matrix(history_df):
 
     df = history_df.copy()
 
+    top_tracks = df.groupby("track_id")["playcount"].sum().nlargest(500).index
+    df = df[df["track_id"].isin(top_tracks)]
+
     # Memastikan playcount bertipe angka
     df["playcount"] = pd.to_numeric(df["playcount"], errors="coerce")
     df = df.dropna(subset=["track_id", "user_id", "playcount"])

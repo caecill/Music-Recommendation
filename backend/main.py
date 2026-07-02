@@ -1,9 +1,11 @@
 import pandas as pd
+import numpy as np
 
 from recommender.recommendation import recommend_songs
 from recommender.cold_start import get_popular_songs
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from backend.database import (
     get_all_songs,
     get_all_users,
@@ -12,9 +14,18 @@ from backend.database import (
     login_user,
     play_song,
     get_history_dataframe,
-    get_music_dataframe
+    get_music_dataframe,
+    search_songs
 )
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 from pydantic import BaseModel
 
@@ -33,6 +44,12 @@ def root():
 @app.get("/songs")
 def songs():
     return get_all_songs()
+
+@app.get("/songs/search")
+def search(q: str = ""):
+    if not q.strip():
+        return get_all_songs()
+    return search_songs(q.strip())
 
 @app.get("/users")
 def users():
@@ -70,30 +87,39 @@ def play(data: PlayRequest):
 
 @app.get("/recommend/{user_id}")
 def recommend(user_id: str):
+    try:
+        history = get_history_dataframe()
+        music = get_music_dataframe()
 
-    history = get_history_dataframe()
-    music = get_music_dataframe()
+        history_df = pd.DataFrame(history)
+        music_df = pd.DataFrame(music)
 
-    history_df = pd.DataFrame(history)
-    music_df = pd.DataFrame(music)
+        if history_df.empty:
+            return {"status": "error", "message": "Tidak ada data history"}
 
-    # Cek apakah user punya history
-    user_history = history_df[
-        history_df["user_id"] == user_id
-    ]
+        # Cek apakah user punya history
+        user_history = history_df[
+            history_df["user_id"] == user_id
+        ]
 
-    if user_history.empty:
-        result = get_popular_songs(
-            history_df,
-            music_df,
-            top_n=10
-        )
-    else:
-        result = recommend_songs(
-            user_id,
-            history_df,
-            music_df,
-            top_n=10
-        )
+        if user_history.empty:
+            result = get_popular_songs(
+                history_df,
+                music_df,
+                top_n=10
+            )
+        else:
+            result = recommend_songs(
+                user_id,
+                history_df,
+                music_df,
+                top_n=10
+            )
 
-    return result.to_dict(orient="records")
+        if result is None or result.empty:
+            return []
+
+        return result.replace({np.nan: None}).to_dict(orient="records")
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

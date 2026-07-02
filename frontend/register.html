@@ -301,6 +301,7 @@
     </style>
   </head>
   <body>
+    <script>if (window===window.top) location.replace("index.html")</script>
     <!-- Register Section -->
     <div class="register-container">
       <div class="register-card">
@@ -321,28 +322,14 @@
 
         <form id="registerForm" onsubmit="return handleRegister(event)">
           <div class="form-group">
-            <label for="full_name">Full Name</label>
+            <label for="username">Username</label>
             <div class="input-wrapper">
               <span class="material-symbols-outlined icon">person</span>
               <input
-                id="full_name"
+                id="username"
                 type="text"
-                placeholder="Enter your full name"
-                autocomplete="name"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <div class="input-wrapper">
-              <span class="material-symbols-outlined icon">mail</span>
-              <input
-                id="email"
-                type="email"
-                placeholder="email@example.com"
-                autocomplete="email"
+                placeholder="Enter your username"
+                autocomplete="username"
                 required
               />
             </div>
@@ -388,10 +375,10 @@
             </div>
           </div>
 
-          <button type="submit" class="btn-primary">Daftar</button>
+          <button type="submit" class="btn-primary">Register</button>
         </form>
 
-        <div class="divider">atau daftar dengan</div>
+        <div class="divider">or register with</div>
 
         <div class="social-buttons">
           <button onclick="alert('Google login coming soon')">
@@ -426,7 +413,7 @@
         </div>
 
         <div class="login-prompt">
-          Sudah punya akun? <a href="#" onclick="goToLogin()">Masuk</a>
+          have had an account? <a href="#" onclick="goToLogin()">Sign in</a>
         </div>
       </div>
     </div>
@@ -444,18 +431,15 @@
         }
       }
 
-      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const API = new URLSearchParams(location.search).get("api") || window.__API_BASE_URL || "http://127.0.0.1:8000";
 
       function goToLogin() {
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "Login");
-        window.location.search = params.toString();
+        try { parent.navigate("Login"); } catch (e) { location.hash = "#Login"; }
       }
 
       async function handleRegister(event) {
         event.preventDefault();
-        const name = document.getElementById("full_name").value;
-        const email = document.getElementById("email").value;
+        const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const confirm = document.getElementById("confirm_password").value;
         const errorMsg = document.getElementById("errorMessage");
@@ -465,7 +449,7 @@
         errorMsg.style.display = "none";
         successMsg.style.display = "none";
 
-        if (!name || !email || !password || !confirm) {
+        if (!username || !password || !confirm) {
           errorText.textContent = "Harap isi semua bidang";
           errorMsg.style.display = "flex";
           return false;
@@ -487,16 +471,14 @@
           const res = await fetch(API + "/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: email }),
+            body: JSON.stringify({ user_id: username }),
           });
           const data = await res.json();
 
           successMsg.style.display = "flex";
 
           setTimeout(function () {
-            const params = new URLSearchParams(window.location.search);
-            params.set("page", "Login");
-            window.location.search = params.toString();
+            try { parent.navigate("Login"); } catch (e) { location.hash = "#Login"; }
           }, 1500);
         } catch (e) {
           errorText.textContent =

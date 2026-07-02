@@ -284,6 +284,7 @@
     </style>
   </head>
   <body class="bg-background overflow-hidden" data-page="Home">
+    <script>if (window===window.top) location.replace("index.html")</script>
     <!-- TopNavBar -->
     <header
       class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-16 glass-header border-b border-white/10 z-50 flex justify-between items-center px-lg"
@@ -884,16 +885,19 @@
       </div>
     </footer>
     <script>
-      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
-      const USER_ID = window.__USER_ID || "U001";
+      const API = new URLSearchParams(location.search).get("api") || window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = new URLSearchParams(location.search).get("user_id") || window.__USER_ID || "U001";
 
       async function loadRecommendations() {
+        const grid = document.querySelector("#recommendation-grid .grid");
+        if (!grid) return;
         try {
           const res = await fetch(API + "/recommend/" + encodeURIComponent(USER_ID), { method: "GET" });
           const songs = await res.json();
-          const grid = document.querySelector("#recommendation-grid .grid");
-          if (!grid || !songs.length) return;
           grid.innerHTML = "";
+          if (!songs || !songs.length) {
+            return;
+          }
           songs.forEach((song, i) => {
             const matchPct = song.score ? Math.round(song.score * 100) : Math.max(98 - i * 3, 50);
             const imgUrl = song.spotify_preview_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDxxlCoAocFGbt3X15tcDzewdtlrDz0z-XCJnVQtxsnm1MhMjV5ZXLIiHkB4WixN1X_VvsZzkPxcX-DHp7DlnFhMpRF_6AxDIyQ56bfKi9uhGuwYX8b1d-UnR4VLEUUycLCqpgvV-NBz4h0ObEgPRd92C7eMZ-GJtbKTZKYGl90V4x5GZwUCDVRqxi42ZthdDGVzZ0cZKBtcifY_BqubR93G8dyWEF-GhnOwmErgnpQ-wAo3T5i66JIsB3CwDaQ7_-rb11RQ19mSpvy";
@@ -923,6 +927,7 @@
             `;
           });
         } catch (e) {
+          grid.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-xl">Failed to load recommendations</p>';
           console.warn("Failed to load recommendations:", e);
         }
       }
@@ -941,6 +946,65 @@
       }
 
       document.addEventListener("DOMContentLoaded", loadRecommendations);
+
+      // Search functionality
+      let searchTimeout;
+      const searchInput = document.querySelector('header input[type="text"]');
+      if (searchInput) {
+        searchInput.placeholder = "Search songs, artists, genres...";
+        searchInput.addEventListener("input", function () {
+          clearTimeout(searchTimeout);
+          const q = this.value.trim();
+          searchTimeout = setTimeout(() => performSearchHome(q), 300);
+        });
+      }
+
+      async function performSearchHome(q) {
+        const grid = document.querySelector("#recommendation-grid .grid");
+        if (!grid) return;
+        if (!q) {
+          loadRecommendations();
+          return;
+        }
+        try {
+          const res = await fetch(API + "/songs/search?q=" + encodeURIComponent(q), { method: "GET" });
+          const songs = await res.json();
+          if (!songs || !songs.length) {
+            grid.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-xl">No results found</p>';
+            return;
+          }
+          grid.innerHTML = "";
+          songs.forEach((song) => {
+            const imgUrl = song.spotify_preview_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDxxlCoAocFGbt3X15tcDzewdtlrDz0z-XCJnVQtxsnm1MhMjV5ZXLIiHkB4WixN1X_VvsZzkPxcX-DHp7DlnFhMpRF_6AxDIyQ56bfKi9uhGuwYX8b1d-UnR4VLEUUycLCqpgvV-NBz4h0ObEgPRd92C7eMZ-GJtbKTZKYGl90V4x5GZwUCDVRqxi42ZthdDGVzZ0cZKBtcifY_BqubR93G8dyWEF-GhnOwmErgnpQ-wAo3T5i66JIsB3CwDaQ7_-rb11RQ19mSpvy";
+            grid.innerHTML += `
+              <div class="recommendation-card group bg-surface-container-low border border-outline-variant p-md rounded-xl transition-all hover:bg-surface-container-high relative" data-track-id="${song.track_id || ""}">
+                <div class="relative aspect-square mb-md overflow-hidden rounded-lg">
+                  <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="${imgUrl}" />
+                  <div class="play-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                    <button class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-background shadow-lg transform translate-y-4 transition-transform duration-300" onclick="playTrack('${song.track_id || ""}')">
+                      <span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1">play_arrow</span>
+                    </button>
+                  </div>
+                  <div class="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md border border-primary/40">
+                    <span class="text-primary font-label-md text-[10px]">SEARCH</span>
+                  </div>
+                </div>
+                <div class="space-y-xs">
+                  <h4 class="font-headline-md text-headline-md text-on-surface truncate">${song.name || "Unknown"}</h4>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${song.artist || "Unknown Artist"}</p>
+                </div>
+                <div class="mt-md">
+                  <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                    <div class="h-full bg-primary shadow-[0_0_8px_#1db954]" style="width: 75%"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } catch (e) {
+          console.warn("Search failed:", e);
+        }
+      }
 
       // Micro-interaction for cards
       document.querySelectorAll(".recommendation-card").forEach((card) => {

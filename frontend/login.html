@@ -314,6 +314,7 @@
     </style>
   </head>
   <body>
+    <script>if (window===window.top) location.replace("index.html")</script>
     <!-- Login Section -->
     <div class="login-container">
       <div class="login-card">
@@ -329,14 +330,14 @@
 
         <form id="loginForm" onsubmit="return handleLogin(event)">
           <div class="form-group">
-            <label for="email">Email or Username</label>
+            <label for="username">Username</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined icon">mail</span>
+              <span class="material-symbols-outlined icon">person</span>
               <input
-                id="email"
-                type="email"
-                placeholder="Enter email or username"
-                autocomplete="email"
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                autocomplete="username"
                 required
               />
             </div>
@@ -409,24 +410,22 @@
     </div>
 
     <script>
-      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const API = new URLSearchParams(location.search).get("api") || window.__API_BASE_URL || "http://127.0.0.1:8000";
 
       function goToRegister() {
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "Register");
-        window.location.search = params.toString();
+        try { parent.navigate("Register"); } catch (e) { location.hash = "#Register"; }
       }
 
       async function handleLogin(event) {
         event.preventDefault();
-        const email = document.getElementById("email").value;
+        const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const errorMsg = document.getElementById("errorMessage");
         const errorText = document.getElementById("errorText");
 
         errorMsg.style.display = "none";
 
-        if (!email || !password) {
+        if (!username || !password) {
           errorText.textContent = "Please fill in all fields";
           errorMsg.style.display = "flex";
           return false;
@@ -436,7 +435,7 @@
           const res = await fetch(API + "/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: email }),
+            body: JSON.stringify({ user_id: username }),
           });
           const data = await res.json();
 
@@ -445,10 +444,7 @@
               const parentDoc = window.parent.document;
               parentDoc.title = "Music Recommendation | Premium Curator";
             } catch (e) {}
-            const params = new URLSearchParams(window.location.search);
-            params.set("page", "Home");
-            params.set("user_id", email);
-            window.location.search = params.toString();
+            try { parent.navigate("Home", { user_id: username }); } catch (e) { location.hash = "#Home&user_id=" + encodeURIComponent(username); }
           } else {
             errorText.textContent = data.message || "Login failed";
             errorMsg.style.display = "flex";
