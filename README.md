@@ -302,31 +302,97 @@ sebelum menjalankan script Python.
 
 
 
-## Menjalankan Backend
+## Dependencies (Library yang Diperlukan)
 
-1. Jalankan Neo4j Desktop dan pastikan database aktif.
-2. Install dependency.
+Project ini menggunakan library-library berikut yang akan otomatis terinstall via `pip install -r requirements.txt`:
+
+| Kelompok | Library | Fungsi |
+|----------|---------|--------|
+| **Backend** | `fastapi`, `uvicorn` | REST API server |
+| **Frontend** | `streamlit` | UI aplikasi |
+| **Database** | `neo4j` | Driver koneksi Neo4j |
+| **ML** | `scikit-learn`, `numpy`, `pandas`, `scipy` | Recommendation engine |
+| **Utils** | `joblib`, `threadpoolctl`, dll | Dependencies pendukung |
+
+> Semua dependency sudah tercantum di `requirements.txt` (root) dan `frontend/requirements.txt`. Cukup jalankan `pip install` sekali, tidak perlu install manual satu per satu.
+
+---
+
+## Cara Menjalankan Project
+
+### Opsi 1 — Satu Repo (BE & FE dalam satu folder)
 
 ```bash
-pip install -r requirements.txt
-```
+# 1. Clone
+git clone https://github.com/username/music-recommendation.git
+cd music-recommendation
 
-3. Jika database masih kosong, lakukan import sekali:
+# 2. Buat virtual env & install
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Mac/Linux
+pip install -r requirements.txt -r frontend\requirements.txt
 
-```bash
+# 3. Setup Neo4j
+# Buka Neo4j Desktop → buat database "musikdb" → start → catat password
+# Edit password di neo4j/import_data.py
 python neo4j/load_database.py
+
+# 4. Jalankan Backend (terminal 1)
+python -m uvicorn backend.main:app --reload
+# Buka http://127.0.0.1:8000/docs
+
+# 5. Jalankan Frontend (terminal 2)
+cd frontend
+python -m http.server 5500
+# Buka http://127.0.0.1:5500/index.html
 ```
 
-4. Jalankan FastAPI.
+### Opsi 2 — Dua Repo Terpisah
+
+**Backend:**
 
 ```bash
+# 1. Clone
+git clone https://github.com/username/music-recommendation-be.git
+cd music-recommendation-be
+
+# 2. Virtual env & install
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Mac/Linux
+pip install -r requirements.txt
+
+# 3. Setup Neo4j
+# Buka Neo4j Desktop → buat database "musikdb" → start → catat password
+# Edit password di neo4j/import_data.py
+python neo4j/load_database.py
+
+# 4. Jalankan server
 python -m uvicorn backend.main:app --reload
+# Buka http://127.0.0.1:8000/docs
 ```
 
-5. Buka Swagger:
+**Frontend:**
 
-```
-http://127.0.0.1:8000/docs
+```bash
+# 1. Clone
+git clone https://github.com/username/music-recommendation-fe.git
+cd music-recommendation-fe
+
+# 2. Buat virtual env & install (wajib)
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Mac/Linux
+pip install -r requirements.txt
+
+# 3. Buka langsung (2 cara):
+# Cara A — VS Code Live Server
+# Cara B — Python built-in:
+python -m http.server 5500
+
+# 4. Buka di browser:
+# http://127.0.0.1:5500/index.html
 ```
 
 ---
@@ -345,11 +411,8 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## Untuk Frontend
+## Catatan
 
-Frontend cukup memanggil endpoint yang tersedia.
-
-Contoh:
 - Login → `POST /login`
 - Register → `POST /register`
 - Daftar Lagu → `GET /songs`
