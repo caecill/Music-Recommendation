@@ -295,19 +295,20 @@
     </style>
   </head>
   <body class="overflow-hidden" data-page="Catalog">
+    <script>if (window===window.top) location.replace("index.html")</script>
     <!-- TopNavBar -->
     <header
       class="fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-16 z-50 glass-header flex justify-between items-center px-lg"
     >
-      <div class="flex items-center gap-md w-1/2 search-container">
-        <div class="relative w-full max-w-md hidden sm:block">
+      <div class="flex items-center gap-md flex-1 max-w-xl search-container">
+        <div class="relative w-full">
           <span
-            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]"
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
             data-icon="search"
             >search</span
           >
           <input
-            class="w-full bg-surface-container-high border-none rounded-xl py-2 pl-10 pr-4 text-on-surface font-body-sm focus:ring-1 focus:ring-primary/50 transition-all outline-none"
+            class="w-full bg-surface-container-high border-none rounded-xl py-2 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-1 focus:ring-primary font-body-sm"
             placeholder="Search songs, artists, genres..."
             type="text"
           />
@@ -1043,16 +1044,19 @@
     </footer>
 
     <script>
-      const API = window.__API_BASE_URL || "http://127.0.0.1:8000";
-      const USER_ID = window.__USER_ID || "";
+      const API = new URLSearchParams(location.search).get("api") || window.__API_BASE_URL || "http://127.0.0.1:8000";
+      const USER_ID = new URLSearchParams(location.search).get("user_id") || window.__USER_ID || "";
 
       async function loadCatalog() {
+        const grid = document.querySelector("#catalog-grid");
+        if (!grid) return;
         try {
           const res = await fetch(API + "/songs", { method: "GET" });
           const songs = await res.json();
-          const grid = document.querySelector("#catalog-grid");
-          if (!grid || !songs.length) return;
           grid.innerHTML = "";
+          if (!songs || !songs.length) {
+            return;
+          }
           songs.forEach((song) => {
             const imgUrl =
               song.spotify_preview_url ||
@@ -1104,6 +1108,7 @@
               "of " + songs.length
             );
         } catch (e) {
+          grid.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-xl">Failed to load catalog</p>';
           console.warn("Failed to load catalog:", e);
         }
       }
@@ -1148,16 +1153,66 @@
         });
       });
 
-      // Search bar focus effect
-      var searchInputs = document.querySelectorAll('input[type="text"]');
-      searchInputs.forEach(function (input) {
-        input.addEventListener("focus", function () {
-          this.parentElement.classList.add("ring-2", "ring-primary/30");
+      // Search functionality
+      let searchTimeout;
+      const searchInput = document.querySelector('header input[type="text"]');
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          clearTimeout(searchTimeout);
+          const q = this.value.trim();
+          searchTimeout = setTimeout(() => performSearchCatalog(q), 300);
         });
-        input.addEventListener("blur", function () {
-          this.parentElement.classList.remove("ring-2", "ring-primary/30");
-        });
-      });
+      }
+
+      async function performSearchCatalog(q) {
+        const grid = document.querySelector("#catalog-grid");
+        if (!grid) return;
+        if (!q) {
+          loadCatalog();
+          return;
+        }
+        try {
+          const res = await fetch(API + "/songs/search?q=" + encodeURIComponent(q), { method: "GET" });
+          const songs = await res.json();
+          if (!songs || !songs.length) {
+            grid.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-xl">No results found</p>';
+            return;
+          }
+          grid.innerHTML = "";
+          songs.forEach((song) => {
+            const imgUrl = song.spotify_preview_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuAa45ZzFm6SN_amauOiKyzM4X1Ol_BDaut0KXTliOi_Tym2AfNc5p0_sbxBEJJAcOag0C1vOqmRx6JuA5MiwPnnZww7CJtuOpMCnYwa2Rmtk0935e7iVOYCQwG26A6AO6xTO3wo-Xz4opaR3s2Il_75mr5RXVSGH4YqL6TbC7BUUY7OyDbArXJ9zH5R60VVRKlvHwjzTQbXVu32_NybI2LbKEzONfuqlNN7Av1jfTl4eSIDfFad7SrFJC_bI8wRKRFuHAIay-WVTC0W";
+            grid.innerHTML += `
+              <div class="song-card group bg-surface-container-low p-md rounded-xl border border-white/5 hover:bg-surface-container-high transition-all duration-300 relative">
+                <div class="relative mb-md aspect-square rounded-lg overflow-hidden">
+                  <img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" src="${imgUrl}" />
+                  <div class="play-overlay absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transform translate-y-4 transition-all duration-300">
+                    <button class="w-14 h-14 bg-primary text-on-primary shadow-xl rounded-full flex items-center justify-center transform hover:scale-110 active:scale-95 transition-transform" onclick="playCatalogTrack('${song.track_id || ""}')">
+                      <span class="material-symbols-outlined text-4xl" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1">play_arrow</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="flex justify-between items-start mb-xs">
+                  <div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface truncate pr-2">${song.name || "Unknown"}</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">${song.artist || "Unknown"}</p>
+                  </div>
+                  <span class="font-label-md text-[10px] text-primary/60">ID: ${song.track_id || ""}</span>
+                </div>
+                <div class="flex items-center justify-between mt-md">
+                  <span class="bg-surface-container-highest text-on-surface px-sm py-1 rounded font-label-md text-[10px]">${(song.genre || "GENRE").toUpperCase()}</span>
+                  <span class="font-label-md text-on-surface-variant">${song.year || ""}</span>
+                </div>
+              </div>
+            `;
+          });
+          const countEl = document.querySelector(".pagination-info span.font-bold");
+          if (countEl) countEl.textContent = "1 - " + songs.length;
+          const totalEl = document.querySelector(".pagination-info");
+          if (totalEl) totalEl.innerHTML = totalEl.innerHTML.replace(/of \d+/, "of " + songs.length);
+        } catch (e) {
+          console.warn("Search failed:", e);
+        }
+      }
     </script>
     <script src="sidebar.js"></script>
   </body>
