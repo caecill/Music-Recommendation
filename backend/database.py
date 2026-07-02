@@ -11,7 +11,7 @@ def get_all_songs():
         s.artist AS artist,
         s.genre AS genre,
         s.year AS year
-    LIMIT 20
+    LIMIT 50
     """
 
     return db.query(query)
@@ -111,7 +111,8 @@ def get_history_dataframe():
         r.playcount AS playcount
     """
 
-    return db.query(query)
+    result = db.query(query)
+    return result if result is not None else []
 
 def get_music_dataframe():
     query = """
@@ -126,4 +127,24 @@ def get_music_dataframe():
         s.spotify_preview_url AS spotify_preview_url
     """
 
-    return db.query(query)
+    result = db.query(query)
+    return result if result is not None else []
+
+def search_songs(query_str):
+    q = query_str.lower()
+    query = """
+    MATCH (s:Song)
+    WHERE toLower(s.track_id) CONTAINS $q
+       OR toLower(s.name) CONTAINS $q
+       OR toLower(s.artist) CONTAINS $q
+       OR toLower(s.genre) CONTAINS $q
+       OR toString(s.year) CONTAINS $q
+    RETURN
+        s.track_id AS track_id,
+        s.name AS name,
+        s.artist AS artist,
+        s.genre AS genre,
+        s.year AS year
+    LIMIT 50
+    """
+    return db.query(query, {"q": q})
